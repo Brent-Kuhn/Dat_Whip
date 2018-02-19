@@ -15,12 +15,12 @@ def callback(data):
 
 def drive(x,y):
     global pub
-    direction = (.34) * math.atan2(y, x)/ 1.57 # Assuming pos is left and neg is right
+    direction = (.34) * math.atan2(y, x) *(2/math.pi) # Assuming pos is left and neg is right
     speed = y / 100  #change this value to the max length of a line
 
     drive_msg_stamped = AckermannDriveStamped()
     drive_msg = AckermannDrive()
-    drive_msg.speed = speed 
+    drive_msg.speed = speed
     drive_msg.steering_angle = direction
     drive_msg.acceleration = 0
     drive_msg.jerk = 0
