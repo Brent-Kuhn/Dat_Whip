@@ -288,7 +288,7 @@ def getXYFromLine(line, width, height):
     return x, y
 
 def publishXY(x, y):
-    pub.publish(str(x) + ' ' + str(y))
+    pub.publish(str(x) + ',' + str(y))
 
 if __name__ == '__main__':
     try:
