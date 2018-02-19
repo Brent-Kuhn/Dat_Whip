@@ -1,5 +1,11 @@
 *
 !.gitignore
 !launch/
+!/launch/
+!/launch/*
 !scripts/
+!/scripts/
+!/scripts/*
 !test_scripts/
+!/test_scripts/
+!/test_scripts/*
