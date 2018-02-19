@@ -11,7 +11,7 @@ def main():
     leftPub = rospy.Publisher('zedLeft', Image, queue_size=1)
     rightPub = rospy.Publisher('zedRight', Image, queue_size=1)
     rospy.init_node('camera', anonymous=False)
-    rate = rospy.Rate(5)
+    rate = rospy.Rate(60)
     cap = cv2.VideoCapture(1)
 
     while(not rospy.is_shutdown()):

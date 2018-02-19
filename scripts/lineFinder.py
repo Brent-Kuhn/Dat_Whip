@@ -10,6 +10,9 @@ from cv_bridge import CvBridge, CvBridgeError
 pub = None
 
 ### Custom constants to tweak for ultimate perfection ###
+
+DISPLAY_IMAGE = False
+
 SHOW_ALL_STEPS = False
 GAUSS_KERNEL = 5
 
@@ -51,6 +54,13 @@ def resetLineHistory():
 
 last_index = 0
 
+BLUE_HUE = 165
+BLUE_HUE_THRESH = 20
+BLUE_SAT_MIN = 25
+BLUE_SAT_MAX = 255
+BLUE_VAL_MIN = 20
+BLUE_VAL_MAX = 255
+
 def main():
     global pub
     rp.init_node('image_processor', anonymous=False)
@@ -67,7 +77,10 @@ def zedLeftCallback(data):
     image = getCVImageFromData(data)
     h, w, _ = image.shape
     image_height = h
-    line = lineCoordsFromImage(image)[0]
+    try:
+        line = lineCoordsFromImage(image)[0]
+    except IndexError:
+        line = []
     x, y = getXYFromLine(line,w,h)
     publishXY(x, y)
 
@@ -80,9 +93,11 @@ def lineCoordsFromImage(image):
 
     blur = gaussian_blur(image, GAUSS_KERNEL)
 
-    filtered = colorFilter(blur, 200, 40, 0, 150, 0, 200)
+    filtered = colorFilter(blur, BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX) 
 
-    can_raw = canny(filtered, CANNY_LOW_THRESH, CANNY_HIGH_THRESH)
+    gray = grayscale(filtered)
+
+    can_raw = canny(gray, CANNY_LOW_THRESH, CANNY_HIGH_THRESH)
     can = cv2.cvtColor(can_raw, cv2.COLOR_GRAY2BGR)
 
     region_of_interest_pixels = convertToPixelRegion(REGION_OF_INTEREST, w, h)
@@ -91,18 +106,59 @@ def lineCoordsFromImage(image):
 
     lines = hough_lines(region_bw, HOUGH_RHO, HOUGH_THETA, \
         HOUGH_THRESH, HOUGH_MIN_LEN, HOUGH_MAX_GAP)
-    return processLines(lines)
+
+    single_line = processLines(lines)
+
+    if DISPLAY_IMAGE:
+        if lines is None or len(lines) == 0 or lines[0] == []:
+            lines = [[[0, 0, 0, 0]]]
+        lines = removeThatStupidDimension(lines)
+        raw_hough = newLinesImage(lines, w, h)
+        output = combineImages(\
+            (image, filtered, can, region, raw_hough, newLinesImage(single_line, w, h)))
+        showImage(output)
+    
+    return single_line
+
+def newLinesImage(lines, w, h):
+    image = np.zeros((h, w, 3), dtype=np.uint8)
+    draw_lines(image, lines, thickness=5)
+    return image
+
+def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
+    """
+NOTE: this is the function you might want to use as a starting point once you want to average/extrapolate the line segments you detect to map out the full extent of the lane (going from the result shown in raw-lines-example.mp4    to that shown in P1_example.mp4).
+
+Think about things like separating line segments by their
+slope ((y2-y1)/(x2-x1)) to decide which segments are part of the left
+line vs. the right line.  Then, you can average the position of each of
+the lines and extrapolate to the top and bottom of the lane.
+
+This function draws `lines` with `color` and `thickness`.
+Lines are drawn on the image inplace (mutates the image).
+If you want to make the lines semi-transparent, think about combining
+this function with the weighted_img() function below
+    """
+
+    for line in lines:
+        x1,y1,x2,y2 = line
+        cv2.line(img, (int(x1), int(y1)), (int(x2), int(y2)), color, thickness)
 
 def gaussian_blur(img, kernel_size):
     """Applies a Gaussian Noise kernel"""
     return cv2.GaussianBlur(img, (kernel_size, kernel_size), 0)
+
+def combineImages(images):
+    a = np.concatenate((images[0], images[1], images[2]), axis=1)
+    b = np.concatenate((images[3], images[4], images[5]), axis=1)
+    return np.concatenate((a, b), axis=0)
 
 def colorFilter(image, hue, hue_thresh, sat_min, sat_max, val_min, val_max):
     lower = np.array([hue - hue_thresh, sat_min, val_min])
     upper = np.array([hue + hue_thresh, sat_max, val_max])
     mask = cv2.inRange(image, lower, upper)
     blur = gaussian_blur(mask, GAUSS_KERNEL)
-    return cv2.bitwise_and(image, image, mask=blur)
+    return cv2.bitwise_and(image, image, mask=mask)
 
 def canny(img, low_threshold, high_threshold):
     """Applies the Canny transform"""
@@ -159,10 +215,10 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
 def processLines(lines):
     global last_left, last_right, last_left_lines, last_right_lines, last_index
 
-    if lines is None:
-        moving_left_avg = last_left
-        moving_right_avg = last_right
-    else:
+    #if False and lines is None:
+    #    moving_left_avg = last_left
+    #    moving_right_avg = last_right
+    if lines is not None:
         lines = removeThatStupidDimension(lines)
         lines = filterBySlope(lines)
         lines = ensureLinesGoTopToBottom(lines)
@@ -186,13 +242,15 @@ def processLines(lines):
         last_left = left_avg
         # last_right = right_avg
 
-    l = extrapolateToBottom(moving_left_avg)
-    # r = extrapolateToBottom(moving_right_avg)
-    # l = extrapolateToMid(l)
-    # r = extrapolateToMid(r)
+        l = extrapolateToBottom(moving_left_avg)
+        # r = extrapolateToBottom(moving_right_avg)
+        # l = extrapolateToMid(l)
+        # r = extrapolateToMid(r)
 
-    # return [l, r]
-    return [l]
+        # return [l, r]
+        return [l]
+    else:
+        return []
 
 def ensureLinesGoTopToBottom(lines):
     size = len(lines)
@@ -306,14 +364,23 @@ def slope(line):
     return (float(y1) - float(y2)) / (float(x1) - float(x2))
 
 def getXYFromLine(line, width, height):
-    [topX, topY, _, _] = line
-    x = topX - int(width / 2)
-    y = height - topY
-    return x, y
+    try:
+        [topX, topY, _, _] = line
+        x = topX - int(width / 2)
+        y = height - topY
+        return x, y
+    except Exception:
+        return 0, 0
 
 def publishXY(x, y):
     global pub
     pub.publish(str(x) + ',' + str(y))
+
+def showImage(image):
+    if DISPLAY_IMAGE:
+        cv2.imshow('image', image)
+        if cv2.waitKey(20) & 0xFF == ord('q'):
+	    pass
 
 if __name__ == '__main__':
     try:
