@@ -1,0 +1,5 @@
+*
+!.gitignore
+!launch/
+!scripts/
+!test_scripts/
