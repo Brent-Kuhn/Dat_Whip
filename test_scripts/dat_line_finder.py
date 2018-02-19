@@ -33,6 +33,12 @@ MOVING_AVG_SIZE = 3
 
 SLOPE_MIN = .1
 
+last_left = [0] * 4
+last_right = [0] * 4
+
+last_left_lines = []
+last_right_lines = []
+
 
 def main():
     global pub
@@ -48,7 +54,8 @@ def subscribeToLeft():
 def zedLeftCallback(data):
     image = getCVImageFromData(data)
     line = lineCoordsFromImage(image)
-    x, y = getXYFromLine(line)
+    h, w, _ = image.shape
+    x, y = getXYFromLine(line,w,h)
     publishXY(x, y)
 
 def getCVImageFromData(data):
