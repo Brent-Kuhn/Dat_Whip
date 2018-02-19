@@ -33,9 +33,25 @@ MOVING_AVG_SIZE = 3
 
 SLOPE_MIN = .1
 
+last_left = [0] * 4
+last_right = [0] * 4
+
+last_left_lines = []
+last_right_lines = []
+
+def resetLineHistory():
+    global last_left_lines, last_right_lines
+    last_left_lines = []
+    last_right_lines = []
+    for i in range(MOVING_AVG_SIZE):
+        last_left_lines.append([0] * 4)
+        last_right_lines.append([0] * 4)
+last_index = 0
+
 
 def main():
     global pub
+    resetLineHistory()
     subscribeToLeft()
     rp.init_node('image_processor', anonymous=True)
     pub = rp.Publisher('lineCords', String, queue_size=10)
@@ -43,18 +59,20 @@ def main():
 def subscribeToLeft():
     rp.init_node('camera', anonymous=True)
     rp.Subscriber('zedLeft', Image, zedLeftCallback)
-	rp.spin()
+    rp.spin()
 
 def zedLeftCallback(data):
     image = getCVImageFromData(data)
     line = lineCoordsFromImage(image)
-    x, y = getXYFromLine(line)
+    h, w, _ = image.shape
+    x, y = getXYFromLine(line,w,h)
     publishXY(x, y)
 
 def getCVImageFromData(data):
-    return bridge.imgmsg_to_cv2(data, encoding='passthrough')
+    bridge = CvBridge()
+    return bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
 
-def lineCoordsFromImage(image, name):
+def lineCoordsFromImage(image):
     h, w, _ = image.shape
 
     blur = gaussian_blur(image, GAUSS_KERNEL)
@@ -172,6 +190,14 @@ def processLines(lines):
 
     # return [l, r]
     return [l]
+
+def ensureLinesGoTopToBottom(lines):
+    size = len(lines)
+    for i in range(size):
+        [x1, y1, x2, y2] = lines[i]
+        if y1 > y2:
+            lines[i] = [x2, y2, x1, y1]
+    return lines
 
 def removeThatStupidDimension(lines):
     output = []
