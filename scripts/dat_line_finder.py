@@ -276,11 +276,6 @@ def slope(line):
         return float('inf')
     return (float(y1) - float(y2)) / (float(x1) - float(x2))
 
-
-
-
-
-
 def getXYFromLine(line, width, height):
     [topX, topY, _, _] = line
     x = topX - int(width / 2)
