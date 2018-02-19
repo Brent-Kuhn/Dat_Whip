@@ -39,9 +39,19 @@ last_right = [0] * 4
 last_left_lines = []
 last_right_lines = []
 
+def resetLineHistory():
+    global last_left_lines, last_right_lines
+    last_left_lines = []
+    last_right_lines = []
+    for i in range(MOVING_AVG_SIZE):
+        last_left_lines.append([0] * 4)
+        last_right_lines.append([0] * 4)
+last_index = 0
+
 
 def main():
     global pub
+    resetLineHistory()
     subscribeToLeft()
     rp.init_node('image_processor', anonymous=True)
     pub = rp.Publisher('lineCords', String, queue_size=10)
@@ -180,6 +190,14 @@ def processLines(lines):
 
     # return [l, r]
     return [l]
+
+def ensureLinesGoTopToBottom(lines):
+    size = len(lines)
+    for i in range(size):
+        [x1, y1, x2, y2] = lines[i]
+        if y1 > y2:
+            lines[i] = [x2, y2, x1, y1]
+    return lines
 
 def removeThatStupidDimension(lines):
     output = []
