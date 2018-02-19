@@ -29,8 +29,8 @@ def drive(x,y):
 
 def main():
     global pub
-    rospy.init_node("driveListen",anonymous=False)
-    rospy.Subscriber("NAME_OF_GABES_PUBLISHER",String,callback)
+    rospy.init_node("lineListen",anonymous=False)
+    rospy.Subscriber("lineCords",String,callback)
     rp.init_node("plzWerk",anonymous = False)
 	pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
     rospy.spin()

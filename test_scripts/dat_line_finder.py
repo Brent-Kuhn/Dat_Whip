@@ -37,8 +37,8 @@ SLOPE_MIN = .1
 def main():
     global pub
     subscribeToLeft()
-    rp.init_node('follow_coords', anonymous=True)
-    pub = rp.Publisher('xy', String, queue_size=10)
+    rp.init_node('image_processor', anonymous=True)
+    pub = rp.Publisher('lineCords', String, queue_size=10)
 
 def subscribeToLeft():
     rp.init_node('camera', anonymous=True)
@@ -283,6 +283,7 @@ def getXYFromLine(line, width, height):
     return x, y
 
 def publishXY(x, y):
+    global pub
     pub.publish(str(x) + ',' + str(y))
 
 if __name__ == '__main__':
