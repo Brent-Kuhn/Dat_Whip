@@ -14,7 +14,7 @@ def main():
     rate = rospy.Rate(5)
     cap = cv2.VideoCapture(1)
 
-    while(not rospy.isShutdown()):
+    while(not rospy.is_shutdown()):
         ret,img = cap.read()
 
         leftImg=img[0:376,0:672]
