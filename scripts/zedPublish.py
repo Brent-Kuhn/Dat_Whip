@@ -8,8 +8,8 @@ from cv_bridge import CvBridge, CvBridgeError
 def main():
     global cap
     bridge = CvBridge()
-    leftPub = rospy.Publisher('zedLeft', Image, queue_size=10)
-    rightPub = rospy.Publisher('zedRight', Image, queue_size=10)
+    leftPub = rospy.Publisher('zedLeft', Image, queue_size=1)
+    rightPub = rospy.Publisher('zedRight', Image, queue_size=1)
     rospy.init_node('camera', anonymous=False)
     rate = rospy.Rate(5)
     cap = cv2.VideoCapture(1)

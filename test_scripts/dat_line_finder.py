@@ -13,6 +13,8 @@ pub = None
 SHOW_ALL_STEPS = False
 GAUSS_KERNEL = 5
 
+image_height = 0
+
 CANNY_LOW_THRESH = 50
 CANNY_HIGH_THRESH = 75
 
@@ -46,25 +48,26 @@ def resetLineHistory():
     for i in range(MOVING_AVG_SIZE):
         last_left_lines.append([0] * 4)
         last_right_lines.append([0] * 4)
-last_index = 0
 
+last_index = 0
 
 def main():
     global pub
+    rp.init_node('image_processor', anonymous=False)
+    pub = rp.Publisher('lineCoords', String, queue_size=10)
     resetLineHistory()
     subscribeToLeft()
-    rp.init_node('image_processor', anonymous=True)
-    pub = rp.Publisher('lineCords', String, queue_size=10)
 
 def subscribeToLeft():
-    rp.init_node('camera', anonymous=True)
     rp.Subscriber('zedLeft', Image, zedLeftCallback)
     rp.spin()
 
 def zedLeftCallback(data):
+    global image_height
     image = getCVImageFromData(data)
-    line = lineCoordsFromImage(image)
     h, w, _ = image.shape
+    image_height = h
+    line = lineCoordsFromImage(image)[0]
     x, y = getXYFromLine(line,w,h)
     publishXY(x, y)
 
@@ -315,5 +318,5 @@ def publishXY(x, y):
 if __name__ == '__main__':
     try:
         main()
-    except rospy.ROSInterruptException:
+    except rp.ROSInterruptException:
         pass
