@@ -76,6 +76,7 @@ def getCVImageFromData(data):
     return bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
 
 def lineCoordsFromImage(image):
+    showImage(image)
     h, w, _ = image.shape
 
     blur = gaussian_blur(image, GAUSS_KERNEL)
@@ -314,6 +315,11 @@ def getXYFromLine(line, width, height):
 def publishXY(x, y):
     global pub
     pub.publish(str(x) + ',' + str(y))
+
+def showImage(image):
+    cv2.imshow('image', image)
+    if cv2.waitKey(20) & 0xFF == ord('q'):
+	    pass
 
 if __name__ == '__main__':
     try:
