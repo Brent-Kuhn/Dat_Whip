@@ -43,7 +43,7 @@ def main():
 def subscribeToLeft():
     rp.init_node('camera', anonymous=True)
     rp.Subscriber('zedLeft', Image, zedLeftCallback)
-	rp.spin()
+    rp.spin()
 
 def zedLeftCallback(data):
     image = getCVImageFromData(data)
@@ -52,9 +52,10 @@ def zedLeftCallback(data):
     publishXY(x, y)
 
 def getCVImageFromData(data):
-    return bridge.imgmsg_to_cv2(data, encoding='passthrough')
+    bridge = CvBridge()
+    return bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
 
-def lineCoordsFromImage(image, name):
+def lineCoordsFromImage(image):
     h, w, _ = image.shape
 
     blur = gaussian_blur(image, GAUSS_KERNEL)
