@@ -1,45 +1,39 @@
 #!/usr/bin/python
-import cv2
 import math
 import rospy as rp
-import numpy as np
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge, CvBridgeError
+from std_msgs.msg import String
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
-
+pub=None
 
 def callback(data):
-    bridge = CvBridge()
-    img=bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
     # the code for returning y and x should go here
-    if cv2.waitKey(20) & 0xFF == ord('q'):
+    x,y=data.split(",")
+    drive(x,y)
 	pass
 
 
-def Drive(coords):
-    direction = (-1) * math.atan2(coords[0], coords[1])/ 1.57 # Assuming pos is left and neg is right
-    speed = coords[1] / 50  #change this value to the max length of a line
-	rp.init_node("pleaseWork",anonymous = False)
-	pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
-	rate=rp.Rate(60)
+def drive(x,y):
+    global pub
+    direction = (-.34) * math.atan2(y, x)/ 1.57 # Assuming pos is left and neg is right
+    speed = y / 188  #change this value to the max length of a line
+
 	drive_msg_stamped = AckermannDriveStamped()
 	drive_msg = AckermannDrive()
-       	drive_msg.speed = speed
-        drive_msg.steering_angle = direction
-        drive_msg.acceleration = 0
-        drive_msg.jerk = 0
-        drive_msg.steering_angle_velocity = 0
+   	drive_msg.speed = speed
+    drive_msg.steering_angle = direction
+    drive_msg.acceleration = 0
+    drive_msg.jerk = 0
+    drive_msg.steering_angle_velocity = 0
 	drive_msg_stamped.drive = drive_msg
-
 	pub.publish(drive_msg_stamped)
-	rate.sleep()
 
 def main():
-    while True:
-        rospy.init_node("leftListen",anonymous=False)
-        rospy.Subscriber("zedLeft",Image,callback)
-        Drive()
-        rospy.spin()
+    global pub
+    rospy.init_node("driveListen",anonymous=False)
+    rospy.Subscriber("NAME_OF_GABES_PUBLISHER",String,callback)
+    rp.init_node("plzWerk",anonymous = False)
+	pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
+    rospy.spin()
 
 if __name__ =="__main__":
 	try:
