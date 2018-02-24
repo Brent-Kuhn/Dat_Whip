@@ -90,10 +90,20 @@ def getCVImageFromData(data):
 
 def lineCoordsFromImage(image):
     h, w, _ = image.shape
+    region_of_interest_pixels = convertToPixelRegion(REGION_OF_INTEREST, w, h)
+    region = region_of_interest(image, [region_of_interest_pixels])
+    filtered = colorFilter(region, BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX)
+    blur = gaussian_blur(filtered, GAUSS_KERNEL)
+    can_raw = canny(blur, CANNY_LOW_THRESH, CANNY_HIGH_THRESH)
+    can = cv2.cvtColor(can_raw, cv2.COLOR_GRAY2BGR)
+    lines = hough_lines(can_raw, HOUGH_RHO, HOUGH_THETA, \
+        HOUGH_THRESH, HOUGH_MIN_LEN, HOUGH_MAX_GAP)
 
+    single_line = processLines(lines)
+'''
     blur = gaussian_blur(image, GAUSS_KERNEL)
 
-    filtered = colorFilter(blur, BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX) 
+    filtered = colorFilter(blur, BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX)
 
     gray = grayscale(filtered)
 
@@ -108,6 +118,7 @@ def lineCoordsFromImage(image):
         HOUGH_THRESH, HOUGH_MIN_LEN, HOUGH_MAX_GAP)
 
     single_line = processLines(lines)
+'''
 
     if DISPLAY_IMAGE:
         if lines is None or len(lines) == 0 or lines[0] == []:
@@ -117,7 +128,7 @@ def lineCoordsFromImage(image):
         output = combineImages(\
             (image, filtered, can, region, raw_hough, newLinesImage(single_line, w, h)))
         showImage(output)
-    
+
     return single_line
 
 def newLinesImage(lines, w, h):
