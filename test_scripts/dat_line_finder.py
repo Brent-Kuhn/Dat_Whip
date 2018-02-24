@@ -54,11 +54,11 @@ def resetLineHistory():
 
 last_index = 0
 
-BLUE_HUE = 165
-BLUE_HUE_THRESH = 20
-BLUE_SAT_MIN = 25
+BLUE_HUE = 120
+BLUE_HUE_THRESH = 10
+BLUE_SAT_MIN = 100
 BLUE_SAT_MAX = 255
-BLUE_VAL_MIN = 20
+BLUE_VAL_MIN = 50
 BLUE_VAL_MAX = 255
 
 def main():
@@ -92,7 +92,7 @@ def lineCoordsFromImage(image):
     h, w, _ = image.shape
     region_of_interest_pixels = convertToPixelRegion(REGION_OF_INTEREST, w, h)
     region = region_of_interest(image, [region_of_interest_pixels])
-    filtered = colorFilter(region, BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX)
+    filtered = colorFilter(cv2.cvtColor(region,cv2.COLOR_BGR2HSV), BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX)
     blur = gaussian_blur(filtered, GAUSS_KERNEL)
     can_raw = canny(blur, CANNY_LOW_THRESH, CANNY_HIGH_THRESH)
     can = cv2.cvtColor(can_raw, cv2.COLOR_GRAY2BGR)
@@ -100,25 +100,6 @@ def lineCoordsFromImage(image):
         HOUGH_THRESH, HOUGH_MIN_LEN, HOUGH_MAX_GAP)
 
     single_line = processLines(lines)
-'''
-    blur = gaussian_blur(image, GAUSS_KERNEL)
-
-    filtered = colorFilter(blur, BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX)
-
-    gray = grayscale(filtered)
-
-    can_raw = canny(gray, CANNY_LOW_THRESH, CANNY_HIGH_THRESH)
-    can = cv2.cvtColor(can_raw, cv2.COLOR_GRAY2BGR)
-
-    region_of_interest_pixels = convertToPixelRegion(REGION_OF_INTEREST, w, h)
-    region = region_of_interest(can, [region_of_interest_pixels])
-    region_bw = grayscale(region)
-
-    lines = hough_lines(region_bw, HOUGH_RHO, HOUGH_THETA, \
-        HOUGH_THRESH, HOUGH_MIN_LEN, HOUGH_MAX_GAP)
-
-    single_line = processLines(lines)
-'''
 
     if DISPLAY_IMAGE:
         if lines is None or len(lines) == 0 or lines[0] == []:
@@ -168,7 +149,6 @@ def colorFilter(image, hue, hue_thresh, sat_min, sat_max, val_min, val_max):
     lower = np.array([hue - hue_thresh, sat_min, val_min])
     upper = np.array([hue + hue_thresh, sat_max, val_max])
     mask = cv2.inRange(image, lower, upper)
-    blur = gaussian_blur(mask, GAUSS_KERNEL)
     return cv2.bitwise_and(image, image, mask=mask)
 
 def canny(img, low_threshold, high_threshold):
