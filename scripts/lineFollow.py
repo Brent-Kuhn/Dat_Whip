@@ -4,14 +4,26 @@ import rospy as rp
 from std_msgs.msg import String
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 pub=None
+zeroCount=0
+backCount=0
+attempts=1
 
 def callback(data):
+    global zeroCount
+    global backCount
+    global attempts
     # the code for returning y and x should go here
     x,y=data.data.split(",")
     x=float(x)
     y=float(y)
-    drive(x,y)
-
+    if x != 0 and y != 0:
+        drive(x,y)
+        zeroCount = 0
+        backCount = 0
+    elif zeroCount < 60:
+        zeroCount += 1
+    elif backCount < attempts:
+        backup()
 
 def drive(x,y):
     global pub
@@ -27,6 +39,24 @@ def drive(x,y):
     drive_msg.steering_angle_velocity = 0
     drive_msg_stamped.drive = drive_msg
     pub.publish(drive_msg_stamped)
+
+def backup():
+    global pub
+    global backCount
+    backCount += 1
+    drive_msg_stamped = AckermannDriveStamped()
+    drive_msg = AckermannDrive()
+    drive_msg.speed = -.5
+    drive_msg.steering_angle = 0
+    drive_msg.acceleration = 0
+    drive_msg.jerk = 0
+    drive_msg.steering_angle_velocity = 0
+    drive_msg_stamped.drive = drive_msg
+    rate=rp.Rate(60)
+    for i in range (0,120):
+        pub.publish(drive_msg_stamped)
+        rate.sleep()
+
 
 def main():
     global pub

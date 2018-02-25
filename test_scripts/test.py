@@ -9,26 +9,27 @@ class LineFinderSubscriber:
     def __init__(self):
         rp.init_node('image_processor', anonymous=False)
         self.pub = rp.Publisher('lineCoords', String, queue_size=10)
-        self.lineFinder = LineFinder()
+        self.lineFinder = LineFinder
         self.bridge = CvBridge()
         self.subscribeToLeft()
 
     def subscribeToLeft(self):
-        rp.Subscriber('zedLeft', Image, self.zedLeftCallback)
+        rp.Subscriber('zedLeft', Image, zedLeftCallback)
         rp.spin()
 
-    def zedLeftCallback(self, data):
-        image = self.getCVImageFromData(data)
+    def zedLeftCallback(data):
+        image = getCVImageFromData(data)
         line = self.lineFinder.findIn(image)
         height, width, _ = image.shape
-        goalX, goalY = self.getGoalXYFromLine(line, width, height)
+        goalX, goalY = getGoalXYFromLine(line, width, height)
         self.publishXY(goalX, goalY)
 
-    def getCVImageFromData(self, data):
+    @classmethod
+    def getCVImageFromData(data):
         return self.bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
 
     @classmethod
-    def getGoalXYFromLine(self, line, width, height):
+    def getGoalXYFromLine(line, width, height):
         try:
             [topX, topY, _, _] = line
             x = topX - int(width / 2)
