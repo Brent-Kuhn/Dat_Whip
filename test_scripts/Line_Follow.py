@@ -2,13 +2,14 @@
 import math
 import rospy as rp
 from std_msgs.msg import String
+from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 pub=None
 zeroCount=0
 backCount=0
 attempts=1
 
-def callback(data):
+def camCallback(data):
     global zeroCount
     global backCount
     global attempts
@@ -24,6 +25,12 @@ def callback(data):
         zeroCount += 1
     elif backCount < attempts:
         backup()
+
+def scanCallback(data):
+    ranges=data.ranges[240:841]
+    if min(ranges)<.1778:
+        backup()
+
 
 def drive(x,y):
     global pub
@@ -52,16 +59,15 @@ def backup():
     drive_msg.jerk = 0
     drive_msg.steering_angle_velocity = 0
     drive_msg_stamped.drive = drive_msg
-    rate=rp.Rate(60)
     for i in range (0,120):
         pub.publish(drive_msg_stamped)
-        rate.sleep()
-        
+
 
 def main():
     global pub
     rp.init_node("lineSteer",anonymous=False)
-    rp.Subscriber("lineCoords",String,callback)
+    rp.Subscriber("lineCoords",String,camCallback)
+    rp.Subscriber("scan",LaserScan,scanCallback)
     pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
     rp.spin()
 
