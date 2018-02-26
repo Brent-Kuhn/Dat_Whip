@@ -4,4 +4,4 @@ LICENSE
 maps
 package.xml
 rviz
-
+*/*.pyc
