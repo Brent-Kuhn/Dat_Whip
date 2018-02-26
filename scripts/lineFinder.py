@@ -1,47 +1,54 @@
 #!/usr/bin/python
 import rospy as rp
-from sensor_msgs.msg import Image
 from std_msgs.msg import String
-from cv_bridge import CvBridge, CvBridgeError
-from classes.lineFinderClass import LineFinder
+from sensor_msgs.msg import LaserScan
+from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
+from classes.lineDriveClass import LineDrive
+from classes.estopClass import estop
 
-class LineFinderSubscriber:
+class steeringControl:
     def __init__(self):
-        rp.init_node('image_processor', anonymous=False)
-        self.pub = rp.Publisher('lineCoords', String, queue_size=10)
-        self.lineFinder = LineFinder()
-        self.bridge = CvBridge()
-        self.subscribeToLeft()
-
-    def subscribeToLeft(self):
-        rp.Subscriber('zedLeft', Image, self.zedLeftCallback)
+        rp.init_node("lineSteer",anonymous=False)
+        self.lineDriver=LineDrive(30)
+        self.estop=estop(30,240,841)
+        self.subscribeToLine()
+        #self.subscribeToScan()
+        self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
 
-    def zedLeftCallback(self, data):
-        image = self.getCVImageFromData(data)
-        line = self.lineFinder.findIn(image)
-        height, width, _ = image.shape
-        goalX, goalY = self.getGoalXYFromLine(line, width, height)
-        self.publishXY(goalX, goalY)
+    def subscribeToLine(self):
+        rp.Subscriber("lineCoords",String,self.camCallback)
 
-    def getCVImageFromData(self, data):
-        return self.bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
+    def subscribeToScan(self):
+        rp.Subscriber("scan",LaserScan,self.scanCallback)
 
-    @classmethod
-    def getGoalXYFromLine(self, line, width, height):
+    def camCallback(self,lineData):
         try:
-            [topX, topY, _, _] = line
-            x = topX - int(width / 2)
-            y = height - topY
-            return x, y
+            speed,angle=self.lineDriver.processLine(lineData.data)
+            self.drive(speed,angle)
         except Exception:
-            return 0, 0
+            pass
 
-    def publishXY(self, x, y):
-        self.pub.publish(str(x) + ',' + str(y))
+    def scanCallback(self,data):
+        try:
+            speed,angle=self.estop.processInput(data.ranges)
+            self.drive(speed,angle)
+        except Exception:
+            pass
+
+    def drive(self,speed,angle):
+        drive_msg_stamped = AckermannDriveStamped()
+        drive_msg = AckermannDrive()
+        drive_msg.speed = speed
+        drive_msg.steering_angle = angle
+        drive_msg.acceleration = 0
+        drive_msg.jerk = 0
+        drive_msg.steering_angle_velocity = 0
+        drive_msg_stamped.drive = drive_msg
+        self.pub.publish(drive_msg_stamped)
 
 if __name__ == '__main__':
     try:
-        LineFinderSubscriber()
+        steeringControl()
     except rp.ROSInterruptException:
         pass

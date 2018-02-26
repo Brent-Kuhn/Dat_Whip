@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import math
 
-class lineDrive:
+class LineDrive:
     def __init__(self,attempts):
         self.attemptTime = attempts
         self.zeroCount=0
