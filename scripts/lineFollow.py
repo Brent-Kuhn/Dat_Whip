@@ -1,73 +1,54 @@
 #!/usr/bin/python
-import math
 import rospy as rp
 from std_msgs.msg import String
+from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
-pub=None
-zeroCount=0
-backCount=0
-attempts=1
+from classes.lineDriveClass import lineDrive
+from classes.estopClass import estop
 
-def callback(data):
-    global zeroCount
-    global backCount
-    global attempts
-    # the code for returning y and x should go here
-    x,y=data.data.split(",")
-    x=float(x)
-    y=float(y)
-    if x != 0 and y != 0:
-        drive(x,y)
-        zeroCount = 0
-        backCount = 0
-    elif zeroCount < 60:
-        zeroCount += 1
-    elif backCount < attempts:
-        backup()
+class steeringControl:
+    def __init__(self):
+        rp.init_node("lineSteer",anonymous=False)
+        self.lineDriver=lineDrive(30)
+        self.estop=estop(30,240,841)
+        self.subscribeToLine()
+        #self.subscribeToScan()
+        self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
+        rp.spin()
 
-def drive(x,y):
-    global pub
-    direction = (-.34) * math.atan2(x, y) *(2/math.pi) # Assuming pos is left and neg is right
-    speed = y / 100  #change this value to the max length of a line
+    def subscribeToLine(self):
+        rp.Subscriber("lineCoords",String,self.camCallback)
 
-    drive_msg_stamped = AckermannDriveStamped()
-    drive_msg = AckermannDrive()
-    drive_msg.speed = speed
-    drive_msg.steering_angle = direction
-    drive_msg.acceleration = 0
-    drive_msg.jerk = 0
-    drive_msg.steering_angle_velocity = 0
-    drive_msg_stamped.drive = drive_msg
-    pub.publish(drive_msg_stamped)
+    def subscribeToScan(self):
+        rp.Subscriber("scan",LaserScan,self.scanCallback)
 
-def backup():
-    global pub
-    global backCount
-    backCount += 1
-    drive_msg_stamped = AckermannDriveStamped()
-    drive_msg = AckermannDrive()
-    drive_msg.speed = -.5
-    drive_msg.steering_angle = 0
-    drive_msg.acceleration = 0
-    drive_msg.jerk = 0
-    drive_msg.steering_angle_velocity = 0
-    drive_msg_stamped.drive = drive_msg
-    rate=rp.Rate(60)
-    for i in range (0,120):
-        pub.publish(drive_msg_stamped)
-        rate.sleep()
+    def camCallback(self,lineData):
+        try:
+            speed,angle=self.lineDriver.processLine(lineData.data)
+            self.drive(speed,angle)
+        except Exception:
+            pass
 
+    def scanCallback(self,data):
+        try:
+            speed,angle=self.estop.processInput(data.ranges)
+            self.drive(speed,angle)
+        except Exception:
+            pass
 
-def main():
-    global pub
-    rp.init_node("lineSteer",anonymous=False)
-    rp.Subscriber("lineCoords",String,callback)
-    pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
-    rp.spin()
+    def drive(self,speed,angle):
+        drive_msg_stamped = AckermannDriveStamped()
+        drive_msg = AckermannDrive()
+        drive_msg.speed = speed
+        drive_msg.steering_angle = angle
+        drive_msg.acceleration = 0
+        drive_msg.jerk = 0
+        drive_msg.steering_angle_velocity = 0
+        drive_msg_stamped.drive = drive_msg
+        self.pub.publish(drive_msg_stamped)
 
-if __name__ =="__main__":
+if __name__ == '__main__':
     try:
-    	main()
+        steeringControl()
     except rp.ROSInterruptException:
         pass
-
