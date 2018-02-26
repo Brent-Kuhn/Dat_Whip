@@ -3,10 +3,10 @@ from constants import SLOPE_MIN_THRESH, HISTORY_SIZE
 from lineHistoryClass import LineHistory
 
 class LineCollector:
-    def __init__():
+    def __init__(self):
         self.history = LineHistory(HISTORY_SIZE)
 
-    def processLines(self, lines):
+    def collect(self, lines):
         if lines is None:
             return []
         else:
@@ -18,12 +18,14 @@ class LineCollector:
             moving_left_avg = self.history.getAverage()
             return [moving_left_avg]
 
+    @classmethod
     def removeThatStupidDimension(self, lines):
         output = []
         for line in lines:
             output.append(line[0])
         return output
 
+    @classmethod
     def filterBySlope(self, lines):
         output = []
         for line in lines:
@@ -32,6 +34,7 @@ class LineCollector:
                 output.append(line)
         return output
 
+    @classmethod
     def ensureLinesGoTopToBottom(self, lines):
         size = len(lines)
         for i in range(size):
@@ -40,6 +43,7 @@ class LineCollector:
                 lines[i] = [x2, y2, x1, y1]
         return lines
 
+    @classmethod
     def averageLines(self, lines, default):
         if len(lines) == 0:
             return default
@@ -51,6 +55,7 @@ class LineCollector:
             avg_line[i] /= len(lines)
         return avg_line
 
+    @classmethod
     def slope(self, line):
         x1, y1, x2, y2 = line
         if x1 == x2:

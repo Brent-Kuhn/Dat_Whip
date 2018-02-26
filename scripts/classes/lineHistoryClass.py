@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import numpy as np
 
-class LineHistoryClass:
+class LineHistory:
 
     def __init__(self, storage_size):
         self.storage_size = storage_size
