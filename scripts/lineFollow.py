@@ -3,13 +3,13 @@ import rospy as rp
 from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
-from classes.lineDriveClass import lineDrive
+from classes.lineDriveClass import LineDrive
 from classes.estopClass import estop
 
 class steeringControl:
     def __init__(self):
         rp.init_node("lineSteer",anonymous=False)
-        self.lineDriver=lineDrive(30)
+        self.lineDriver=LineDrive(30)
         self.estop=estop(30,240,841)
         self.subscribeToLine()
         #self.subscribeToScan()
