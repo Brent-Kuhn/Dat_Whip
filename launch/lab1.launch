@@ -3,9 +3,11 @@
   <arg name="racecar_version" default="racecar-v2" />
   <arg name="run_camera" default="false"/>
 
-  <node pkg = "racecar" name = "zed" type = "zedPublish.py"/>
-  <node pkg = "racecar" name = "image_processor" type = "lineFinder.py"/>
-  <node pkg = "racecar" name = "lineSteer" type = "lineFollow.py"/>
+  <node pkg="racecar" name="zed" type="zedPublish.py"/>
+  <node pkg="racecar" name="image_processor" type="lineFinder.py"/>
+  <node pkg="racecar" name="lineSteer" type="lineFollow.py"/>
+  <node pkg="web_video_server" name="web_video_server" type="web_video_server" />
+  <node pkg="racecar" name="server" type="server.py" />
 
   <include file="$(find racecar)/launch/includes/$(arg racecar_version)-teleop.launch.xml">
     <arg name="racecar_version" value="$(arg racecar_version)" />

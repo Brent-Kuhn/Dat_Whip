@@ -4,11 +4,14 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from cv_bridge import CvBridge, CvBridgeError
 from classes.lineFinderClass import LineFinder
+from constants import STREAM_IMAGE
 
 class LineFinderSubscriber:
     def __init__(self):
         rp.init_node('image_processor', anonymous=False)
         self.pub = rp.Publisher('lineCoords', String, queue_size=10)
+        self.debugLeftPub = rp.Publisher('debugLeft', Image, queue_size=1)
+        self.debugRightPub = rp.Publisher('debugRight', Image, queue_size=1)
         self.lastLeftGoal = (0, 0)
         self.lastRightGoal = (0, 0)
         self.lineFinder = LineFinder()
@@ -41,6 +44,9 @@ class LineFinderSubscriber:
         goalX, goalY = self.averageGoal()
         self.publishXY(goalX, goalY)
 
+        if STREAM_IMAGE:
+            self.publishDebugLeft(self.lineFinder.getDebugImage())
+
     def zedRightCallback(self, data):
         image = self.getCVImageFromData(data)
         line = self.lineFinder.findIn(image)
@@ -48,6 +54,9 @@ class LineFinderSubscriber:
         goalX, goalY = self.getGoalXYFromLine(line, width, height)
         # self.publishXY(goalX, goalY)
         self.lastRightGoal = (goalX, goalY)
+
+        if STREAM_IMAGE:
+            self.publishDebugRight(self.lineFinder.getDebugImage())
 
     def averageGoal(self):
         leftX = self.lastLeftGoal[0]
@@ -59,7 +68,7 @@ class LineFinderSubscriber:
         return avgX, avgY
 
     def getCVImageFromData(self, data):
-        return self.bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
+        return self.bridge.imgmsg_to_cv2(data, desired_encoding='bgr8')
 
     @classmethod
     def getGoalXYFromLine(self, line, width, height):
@@ -73,6 +82,16 @@ class LineFinderSubscriber:
 
     def publishXY(self, x, y):
         self.pub.publish(str(x) + ',' + str(y))
+
+    def publishDebugLeft(self, image):
+        if image is not None:
+            message = self.bridge.cv2_to_imgmsg(image, encoding='bgr8')
+            self.debugLeftPub.publish(message)
+
+    def publishDebugRight(self, image):
+        if image is not None:
+            message = self.bridge.cv2_to_imgmsg(image, encoding='bgr8')
+            self.debugRightPub.publish(message)
 
 if __name__ == '__main__':
     try:

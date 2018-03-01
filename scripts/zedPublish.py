@@ -20,8 +20,8 @@ def main():
         leftImg=img[0:376,0:672]
         rightImg=img[0:376,672:1344]
 
-        leftMsg = bridge.cv2_to_imgmsg(leftImg, encoding="passthrough")
-        rightMsg = bridge.cv2_to_imgmsg(rightImg, encoding="passthrough")
+        leftMsg = bridge.cv2_to_imgmsg(leftImg, encoding='bgr8')
+        rightMsg = bridge.cv2_to_imgmsg(rightImg, encoding='bgr8')
 
         leftPub.publish(leftMsg)
         rightPub.publish(rightMsg)

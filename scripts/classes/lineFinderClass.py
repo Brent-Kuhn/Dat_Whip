@@ -2,7 +2,7 @@
 import numpy as np
 from lineCollectorClass import LineCollector
 import cv2
-from constants import DISPLAY_IMAGE, GAUSS_KERNEL, \
+from constants import DISPLAY_IMAGE, STREAM_IMAGE, GAUSS_KERNEL, \
     CANNY_LOW_THRESH, CANNY_HIGH_THRESH, REGION_OF_INTEREST, \
     HOUGH_RHO, HOUGH_THETA, HOUGH_THRESH, HOUGH_MIN_LEN, HOUGH_MAX_GAP, \
     BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX
@@ -13,6 +13,7 @@ class LineFinder:
         self.lineCollector = LineCollector()
         self.h = 0
         self.w = 0
+        self.debugImage = None
 
     def findIn(self, image):
         h, w, _ = image.shape
@@ -35,16 +36,19 @@ class LineFinder:
 
         single_line = self.lineCollector.collect(lines)
 
-        if DISPLAY_IMAGE:
+        if DISPLAY_IMAGE or STREAM_IMAGE:
             if lines is None or len(lines) == 0 or lines[0] == []:
                 lines = [[[0, 0, 0, 0]]]
-            lines = self.removeThatStupidDimension(lines)
+            lines = self.lineCollector.removeThatStupidDimension(lines)
             raw_hough = self.newLinesImage(lines)
             can = cv2.cvtColor(can_raw, cv2.COLOR_GRAY2BGR)
             singleLineImage = self.newLinesImage(single_line)
             output = self.combineImages(\
                 image, filtered, can, region, raw_hough, singleLineImage)
-            self.showImage(output)
+            if DISPLAY_IMAGE:
+                self.showImage(output)
+            if STREAM_IMAGE:
+                self.debugImage = output
 
         return single_line
 
@@ -114,3 +118,7 @@ class LineFinder:
         a = np.concatenate((images[0], images[1], images[2]), axis=1)
         b = np.concatenate((images[3], images[4], images[5]), axis=1)
         return np.concatenate((a, b), axis=0)
+    
+    def getDebugImage(self):
+        return self.debugImage
+

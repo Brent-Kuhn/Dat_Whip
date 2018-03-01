@@ -7,6 +7,9 @@ import numpy as np
 # Whether to display images or not (should be FALSE when not plugged in to a TV)
 DISPLAY_IMAGE = False
 
+# Whether to send images over network (leave FALSE unless specifically debugging)
+STREAM_IMAGE = True
+
 #
 #
 #
@@ -56,3 +59,8 @@ HISTORY_SIZE = 3
 #
 #
 #
+### PORTS ###
+### I really want all ports to be put here ###
+
+# Debug line finding stream port #
+DEBUG_STREAM_PORT = 8081
