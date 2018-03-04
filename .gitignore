@@ -6,3 +6,4 @@ package.xml
 rviz
 */*.pyc
 *.pyc
+scripts/output/
