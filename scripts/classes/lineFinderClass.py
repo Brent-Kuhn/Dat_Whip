@@ -2,10 +2,7 @@
 import numpy as np
 from lineCollectorClass import LineCollector
 import cv2
-from constants import DISPLAY_IMAGE, STREAM_IMAGE, GAUSS_KERNEL, \
-    CANNY_LOW_THRESH, CANNY_HIGH_THRESH, REGION_OF_INTEREST, \
-    HOUGH_RHO, HOUGH_THETA, HOUGH_THRESH, HOUGH_MIN_LEN, HOUGH_MAX_GAP, \
-    BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX
+from constants.constants_helper import getConstant as const
 
 class LineFinder:
 
@@ -25,18 +22,19 @@ class LineFinder:
             return []
 
     def lineCoordsFromImage(self, image):
-        region_of_interest_pixels = self.convertToPixelRegion(REGION_OF_INTEREST)
+        region_of_interest_pixels = self.getPixelRegion()
         region = self.region_of_interest(image, [region_of_interest_pixels])
         filtered = self.colorFilter(cv2.cvtColor(region,cv2.COLOR_BGR2HSV), \
-            BLUE_HUE, BLUE_HUE_THRESH, BLUE_SAT_MIN, BLUE_SAT_MAX, BLUE_VAL_MIN, BLUE_VAL_MAX)
-        blur = self.gaussian_blur(filtered, GAUSS_KERNEL)
-        can_raw = self.canny(blur, CANNY_LOW_THRESH, CANNY_HIGH_THRESH)
-        lines = self.hough_lines(can_raw, HOUGH_RHO, HOUGH_THETA, \
-            HOUGH_THRESH, HOUGH_MIN_LEN, HOUGH_MAX_GAP)
+            const('BLUE_HUE'), const('BLUE_HUE_THRESH'), const('BLUE_SAT_MIN'), \
+            const('BLUE_SAT_MAX'), const('BLUE_VAL_MIN'), const('BLUE_VAL_MAX'))
+        blur = self.gaussian_blur(filtered, const('GAUSS_KERNEL'))
+        can_raw = self.canny(blur, const('CANNY_LOW_THRESH'), const('CANNY_HIGH_THRESH'))
+        lines = self.hough_lines(can_raw, const('HOUGH_RHO'), np.pi / const('HOUGH_THETA_DENOM'), \
+            const('HOUGH_THRESH'), const('HOUGH_MIN_LEN'), const('HOUGH_MAX_GAP'))
 
         single_line = self.lineCollector.collect(lines)
 
-        if DISPLAY_IMAGE or STREAM_IMAGE:
+        if const('DISPLAY_IMAGE') or const('STREAM_IMAGE'):
             if lines is None or len(lines) == 0 or lines[0] == []:
                 lines = [[[0, 0, 0, 0]]]
             lines = self.lineCollector.removeThatStupidDimension(lines)
@@ -45,14 +43,24 @@ class LineFinder:
             singleLineImage = self.newLinesImage(single_line)
             output = self.combineImages(\
                 image, filtered, can, region, raw_hough, singleLineImage)
-            if DISPLAY_IMAGE:
+            if const('DISPLAY_IMAGE'):
                 self.showImage(output)
-            if STREAM_IMAGE:
+            if const('STREAM_IMAGE'):
                 self.debugImage = output
 
         return single_line
 
-    def convertToPixelRegion(self, region):
+    def getPixelRegion(self):
+        p1x = const('REGION_OF_INTEREST_P1_X')
+        p1y = const('REGION_OF_INTEREST_P1_Y')
+        p2x = const('REGION_OF_INTEREST_P2_X')
+        p2y = const('REGION_OF_INTEREST_P2_Y')
+        p3x = const('REGION_OF_INTEREST_P3_X')
+        p3y = const('REGION_OF_INTEREST_P3_Y')
+        p4x = const('REGION_OF_INTEREST_P4_X')
+        p4y = const('REGION_OF_INTEREST_P4_Y')
+        region = np.array(\
+            [[p1x, p1y], [p2x, p2y], [p3x, p3y], [p4x, p4y]], np.float32)
         pixels = np.empty((region.shape[0], 2), np.int32)
         for i in range(region.shape[0]):
             x = region[i][0]
@@ -108,7 +116,7 @@ class LineFinder:
 
     @classmethod
     def showImage(self, image):
-        if DISPLAY_IMAGE:
+        if const('DISPLAY_IMAGE'):
             cv2.imshow('image', image)
             if cv2.waitKey(20) & 0xFF == ord('q'):
     	           pass
@@ -118,7 +126,6 @@ class LineFinder:
         a = np.concatenate((images[0], images[1], images[2]), axis=1)
         b = np.concatenate((images[3], images[4], images[5]), axis=1)
         return np.concatenate((a, b), axis=0)
-    
+
     def getDebugImage(self):
         return self.debugImage
-

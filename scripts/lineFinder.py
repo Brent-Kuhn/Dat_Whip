@@ -4,7 +4,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from cv_bridge import CvBridge, CvBridgeError
 from classes.lineFinderClass import LineFinder
-from constants import STREAM_IMAGE
+from constants.constants_helper import getConstant as const
 
 class LineFinderSubscriber:
     def __init__(self):
@@ -44,7 +44,7 @@ class LineFinderSubscriber:
         goalX, goalY = self.averageGoal()
         self.publishXY(goalX, goalY)
 
-        if STREAM_IMAGE:
+        if const('STREAM_IMAGE'):
             self.publishDebugLeft(self.lineFinder.getDebugImage())
 
     def zedRightCallback(self, data):
@@ -55,7 +55,7 @@ class LineFinderSubscriber:
         # self.publishXY(goalX, goalY)
         self.lastRightGoal = (goalX, goalY)
 
-        if STREAM_IMAGE:
+        if const('STREAM_IMAGE'):
             self.publishDebugRight(self.lineFinder.getDebugImage())
 
     def averageGoal(self):

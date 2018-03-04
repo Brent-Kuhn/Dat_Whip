@@ -1,0 +1,64 @@
+### FLAGS ###
+### Changing these change major functions of the car ###
+
+DISPLAY_IMAGE: Whether to display images or not (should be FALSE when not plugged in to a TV)
+
+STREAM_IMAGE: Whether to send images over network (leave FALSE unless specifically debugging)
+
+#
+#
+#
+
+### CV CONFIGURATIONS ###
+### Configure these to modify how the line is processed ###
+
+GAUSS_KERNEL: Size of the gaussian blur radius
+
+CANNY_LOW_THRESH: Canny edge detection parameters
+CANNY_HIGH_THRESH
+
+REGION_OF_INTEREST_P1_X: Region to crop line-finding image, as percentages of the image size
+REGION_OF_INTEREST_P1_Y
+REGION_OF_INTEREST_P2_X
+REGION_OF_INTEREST_P2_Y
+REGION_OF_INTEREST_P3_X
+REGION_OF_INTEREST_P3_Y
+REGION_OF_INTEREST_P4_X
+REGION_OF_INTEREST_P4_Y
+
+HOUGH_RHO: Hough line parameters... I don't honestly understand what these do
+HOUGH_THETA_DENOM
+HOUGH_THRESH
+HOUGH_MIN_LEN
+HOUGH_MAX_GAP
+
+BLUE_HUE: Define the exact blue color we are looking for for line following
+BLUE_HUE_THRESH
+BLUE_SAT_MIN
+BLUE_SAT_MAX
+BLUE_VAL_MIN
+BLUE_VAL_MAX
+
+#
+#
+#
+
+### LINE PROCESSING ###
+### Change to modify how the hough lines are condensed to a single line ###
+
+SLOPE_MIN_THRESH: Minimum slope, any lines underneath this slope will be ignored
+
+HISTORY_SIZE: How many previous lines to keep for the moving average
+
+#
+#
+#
+
+### PORTS ###
+### I really want all ports to be put here ###
+
+DEBUG_STREAM_PORT: Debug line finding stream port #
+
+#
+#
+#

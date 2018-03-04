@@ -1,10 +1,10 @@
 #!/usr/bin/python
-from constants import SLOPE_MIN_THRESH, HISTORY_SIZE
+from constants.constants_helper import getConstant as const # SLOPE_MIN_THRESH, HISTORY_SIZE
 from lineHistoryClass import LineHistory
 
 class LineCollector:
     def __init__(self):
-        self.history = LineHistory(HISTORY_SIZE)
+        self.history = LineHistory(const('HISTORY_SIZE'))
 
     def collect(self, lines):
         if lines is None:
@@ -30,7 +30,7 @@ class LineCollector:
         output = []
         for line in lines:
             m = self.slope(line)
-            if abs(m) > SLOPE_MIN_THRESH:
+            if abs(m) > const('SLOPE_MIN_THRESH'):
                 output.append(line)
         return output
 

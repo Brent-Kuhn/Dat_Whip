@@ -1,0 +1,27 @@
+<head>
+  <style>
+    table {
+      border: none;
+    }
+  </style>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='index.js') }}"></script>
+</head>
+<h1>Constants</h1>
+<form id=form>
+  <table>
+  {% for key, value in constants %}
+    <tr>
+      <td>
+        {{ key }}
+      </td>
+      <td>
+        <input type=text value="{{ value }}">
+      </td>
+      <td>
+        <input type=button value=update>
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+</form>

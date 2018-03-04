@@ -7,11 +7,15 @@
   <node pkg="racecar" name="image_processor" type="lineFinder.py"/>
   <node pkg="racecar" name="lineSteer" type="lineFollow.py"/>
   <node pkg="web_video_server" name="web_video_server" type="web_video_server" />
-  <node pkg="racecar" name="server" type="server.py" />
+  <node pkg="racecar" name="debug_server" type="debug_server.py" />
 
   <include file="$(find racecar)/launch/includes/$(arg racecar_version)-teleop.launch.xml">
     <arg name="racecar_version" value="$(arg racecar_version)" />
     <arg name="run_camera" value="$(arg run_camera)" />
   </include>
+
+  <!-- TODO Make sure this goes under the correct group you know -->
+  <node pkg="racecar" name="constants_server" type="constants_server.py" />
+  <node pkg="racecar" name="constants_helper" type="constants_helper.py" />
 
 </launch>
