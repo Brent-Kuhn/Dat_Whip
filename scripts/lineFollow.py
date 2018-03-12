@@ -4,34 +4,21 @@ from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 from classes.lineDriveClass import LineDrive
-from classes.estopClass import estop
 
 class steeringControl:
     def __init__(self):
         rp.init_node("lineSteer",anonymous=False)
         self.lineDriver=LineDrive(30)
-        self.estop=estop(30,240,841)
         self.subscribeToLine()
-        #self.subscribeToScan()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
 
     def subscribeToLine(self):
         rp.Subscriber("lineCoords",String,self.camCallback)
 
-    def subscribeToScan(self):
-        rp.Subscriber("scan",LaserScan,self.scanCallback)
-
     def camCallback(self,lineData):
         try:
             speed,angle=self.lineDriver.processLine(lineData.data)
-            self.drive(speed,angle)
-        except Exception:
-            pass
-
-    def scanCallback(self,data):
-        try:
-            speed,angle=self.estop.processInput(data.ranges)
             self.drive(speed,angle)
         except Exception:
             pass
