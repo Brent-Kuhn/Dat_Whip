@@ -8,7 +8,7 @@ import numpy as np
 DISPLAY_IMAGE = False
 
 # Whether to send images over network (leave FALSE unless specifically debugging)
-STREAM_IMAGE = True
+STREAM_IMAGE = False
 
 #
 #
@@ -26,7 +26,7 @@ CANNY_HIGH_THRESH = 75
 
 # Region to crop line-finding image, as percentages of the image size
 REGION_OF_INTEREST = np.array(\
-    [[0.45, 0.6], [0.55, 0.6], [1.3, 1], [-.3, 1]], np.float32)
+    [[0, 0.4], [1, 0.4], [1, 1], [0, 1]], np.float32)
 
 # Hough line parameters... I don't honestly understand what these do
 HOUGH_RHO = 1
@@ -37,7 +37,7 @@ HOUGH_MAX_GAP = 30
 
 # Define the exact blue color we are looking for for line following
 BLUE_HUE = 120
-BLUE_HUE_THRESH = 10
+BLUE_HUE_THRESH = 17
 BLUE_SAT_MIN = 100
 BLUE_SAT_MAX = 255
 BLUE_VAL_MIN = 50

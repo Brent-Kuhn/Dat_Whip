@@ -10,7 +10,7 @@
     <env name="DEBUG" value="true" />
   </group>
 
-  <node pkg="racecar" name="zed" type="zedPublish.py" />
+  <!-- <node pkg="racecar" name="zed" type="zedPublish.py" /> -->
   <node pkg="racecar" name="image_processor" type="lineFinder.py" />
   <node pkg="racecar" name="lineSteer" type="lineFollow.py" />
 
