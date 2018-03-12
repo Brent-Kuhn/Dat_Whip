@@ -8,7 +8,7 @@ def driveTest():
 	rate=rp.Rate(60)
 	drive_msg_stamped = AckermannDriveStamped()
 	drive_msg = AckermannDrive()
-       	drive_msg.speed = 0.8
+       	drive_msg.speed = .8
         drive_msg.steering_angle = 1.0
         drive_msg.acceleration = 0
         drive_msg.jerk = 0
