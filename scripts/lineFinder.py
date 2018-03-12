@@ -7,6 +7,28 @@ from constants import STREAM_IMAGE
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
+class PersistantOutput:
+    def __init__(self, persistSize):
+        self.INVALID_LINE = []
+        self.lastInput = self.INVALID_LINE
+        self.persistSize = persistSize
+        self.persist = persistSize
+
+    def getOutput(self):
+        return self.lastInput
+
+    def setOutput(self, line):
+        if self.isValid(line):
+            self.persist = self.persistSize
+            self.lastInput = line
+        else:
+            self.persist -= 1
+            if self.persist < 0:
+                self.lastInput = self.INVALID_LINE
+
+    def isValid(self, line):
+        return not line == self.INVALID_LINE and not line == None
+
 class LineFinderSubscriber:
     def __init__(self):
         rp.init_node('image_processor', anonymous=False)
@@ -17,6 +39,8 @@ class LineFinderSubscriber:
         self.lastRightGoal = (0, 0)
         self.lineFinder = LineFinder()
         self.bridge = CvBridge()
+        self.persistantLeftOutput = PersistantOutput(10)
+        self.persistantRightOutput = PersistantOutput(10)
         self.subscribeToImage()
 
     def subscribeToImage(self):
@@ -37,6 +61,8 @@ class LineFinderSubscriber:
 
     def zedLeftCallback(self, image):
         line = self.lineFinder.findIn(image)
+        self.persistantLeftOutput.setOutput(line)
+        line = self.persistantLeftOutput.getOutput()
         height, width, _ = image.shape
         goalX, goalY = self.getGoalXYFromLine(line, width, height)
         self.lastLeftGoal = (goalX, goalY)
@@ -46,6 +72,8 @@ class LineFinderSubscriber:
 
     def zedRightCallback(self, image):
         line = self.lineFinder.findIn(image)
+        self.persistantRightOutput.setOutput(line)
+        line = self.persistantRightOutput.getOutput()
         height, width, _ = image.shape
         goalX, goalY = self.getGoalXYFromLine(line, width, height)
         self.lastRightGoal = (goalX, goalY)
