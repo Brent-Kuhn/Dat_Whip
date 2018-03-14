@@ -7,7 +7,7 @@ def driveTest():
 	pub=rp.Publisher("testDriver",String,queue_size=10)
 	rate=rp.Rate(60)
 	while True:
-		pub.publish(".8,1,0")
+		pub.publish(".8,1,1")
 		rate.sleep()
 
 if __name__ =="__main__":

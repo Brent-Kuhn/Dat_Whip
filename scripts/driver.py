@@ -8,7 +8,7 @@ class steeringControl:
     def __init__(self):
         rp.init_node("driver",anonymous=False)
         self.time=0
-        self.timeOut=60
+        self.timeOut=12000
         self.priority=0
         #self.subscribeToWallCenter()
         self.subscribeToTest()
@@ -20,23 +20,18 @@ class steeringControl:
         rp.Subscriber("wallCenter",String,self.driveCallback)
 
     def subscribeToTest(self):
-        rp.Subscriber("testDrive",String,self.driveCallback)
+        rp.Subscriber("testDriver",String,self.driveCallback)
 
     def subscribeToEstop(self):
-        rp.Subscriber("eStop",LaserScan,self.driveCallback)
+        rp.Subscriber("eStop",String,self.driveCallback)
 
     def driveCallback(self,data):
         driveData=data.data.split(",")
-        try:
-            if(driveData[2]>self.priority and self.time<=self.timeOut):
-                self.time+=1
-                self.priority=driveData[2]
-                self.drive(driveData[0],driveData[1])
-            else:
-                self.priority=0
-                self.time=0
-        except Exception:
-            pass
+        if(int(driveData[2])>=self.priority):
+	    print(driveData)
+            self.time+=1
+            self.priority=int(driveData[2])
+            self.drive(float(driveData[0]),float(driveData[1]))
 
     def drive(self,speed,angle):
         drive_msg_stamped = AckermannDriveStamped()
