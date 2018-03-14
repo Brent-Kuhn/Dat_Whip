@@ -73,10 +73,10 @@ DEBUG_STREAM_PORT = 8081
 ### PID ###
 ### Adjust the PID steer controller parameters here ###
 
-# Adjust how strong the turning speed is given the PID output ###
-LIDAR_STEER_SPEED = 0.5 / 100
+# The maximum amount the wheels can turn
+MAX_STEER = .34
 
 # PID constant multipliers #
-LIDAR_PID_P = 0.2
-LIDAR_PID_I = 0.1
-LIDAR_PID_D = 0.001
+LIDAR_PID_P = 1
+LIDAR_PID_I = 0
+LIDAR_PID_D = 0.05

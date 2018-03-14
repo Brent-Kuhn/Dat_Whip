@@ -1,8 +1,9 @@
 #!/usr/bin/python
+import math
 
 from PID import PID
 import time
-from constants import LIDAR_STEER_SPEED, LIDAR_PID_P, LIDAR_PID_I, LIDAR_PID_D
+from constants import MAX_STEER, LIDAR_PID_P, LIDAR_PID_I, LIDAR_PID_D
 
 class LidarSteerManager:
     def __init__(self):
@@ -13,12 +14,26 @@ class LidarSteerManager:
     def steer(self, lidarData):
         error = self.error(lidarData)
         self.pid.update(error)
-        return LIDAR_STEER_SPEED * error#self.pid.output
+        return MAX_STEER * self.pid.output
 
-    def error(self, lidarData):
-        leftArray, rightArray = lidarData
-        error = sum(rightArray) - sum(leftArray)
-        return error
+    def error(self, points):
+        right1 = points[179]
+        right2 = points[239]
+        left1 = points[900]
+        left2 = points[840]
+
+        right_perp = right2/(math.acos(math.pi/6))
+
+        left_perp = left2/(math.acos(math.pi/6))
+
+        right_avg = (right1 + right_perp)/2
+        left_avg = (left1 + left_perp)/2
+
+        max_avg = max(left_avg, right_avg)
+
+        diff = (right_avg/max_avg - left_avg/max_avg)
+
+        return diff
 
 def main():
     steerManager = LidarSteerManager()

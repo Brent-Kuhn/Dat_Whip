@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import math
+from constants import MAX_STEER
 
 class LineDrive:
     def __init__(self,attempts):
@@ -11,7 +12,7 @@ class LineDrive:
         x=float(x)
         y=float(y)
         if x != 0 and y != 0:
-            angle = (-.34) * math.atan2(x, y) *(2/math.pi) # Assuming pos is left and neg is right
+            angle = -MAX_STEER * math.atan2(x, y) *(2/math.pi) # Assuming pos is left and neg is right
             speed = y / 100  #change this value to the max length of a line
             self.backCount = 0
             return(speed,angle)
