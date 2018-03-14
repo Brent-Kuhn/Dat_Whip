@@ -8,7 +8,7 @@ class steeringControl:
     def __init__(self):
         rp.init_node("driver",anonymous=False)
         self.time=0
-        self.timeOut=12000
+        self.timeOut=60
         self.priority=0
         #self.subscribeToWallCenter()
         self.subscribeToTest()
@@ -27,11 +27,15 @@ class steeringControl:
 
     def driveCallback(self,data):
         driveData=data.data.split(",")
-        if(int(driveData[2])>=self.priority):
-	    print(driveData)
-            self.time+=1
+        if(int(driveData[2])>self.priority):
             self.priority=int(driveData[2])
             self.drive(float(driveData[0]),float(driveData[1]))
+	elif(int(driveData[2])==self.priority and self.time<self.timeOut):
+	    self.time+=1
+	    self.drive(float(driveData[0]),float(driveData[1]))
+	else:
+            self.priority-=1
+            self.time=0
 
     def drive(self,speed,angle):
         drive_msg_stamped = AckermannDriveStamped()
