@@ -59,8 +59,24 @@ HISTORY_SIZE = 3
 #
 #
 #
+
 ### PORTS ###
 ### I really want all ports to be put here ###
 
 # Debug line finding stream port #
 DEBUG_STREAM_PORT = 8081
+
+#
+#
+#
+
+### PID ###
+### Adjust the PID steer controller parameters here ###
+
+# Adjust how strong the turning speed is given the PID output ###
+LIDAR_STEER_SPEED = 0.5 / 1000
+
+# PID constant multipliers #
+LIDAR_PID_P = 0.2
+LIDAR_PID_I = 0.1
+LIDAR_PID_D = 0.001
