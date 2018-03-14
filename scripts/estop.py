@@ -6,7 +6,7 @@ import rospy as rp
 class estop:
     def __init__(self,attempts,start,stop):
         rp.init_node("eStop",anonymous=False)
-        self.pub=rp.Publisher("driver",String,queue_size=10)
+        self.pub=rp.Publisher("eStop",String,queue_size=10)
         self.subscribeToScan()
         self.maxAttempts = attempts
         self.attempts = 0

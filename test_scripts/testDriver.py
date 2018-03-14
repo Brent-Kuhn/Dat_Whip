@@ -4,7 +4,7 @@ from std_msgs.msg import String
 
 def driveTest():
 	rp.init_node("testDrive",anonymous = False)
-	pub=rp.Publisher("driver",String,queue_size=10)
+	pub=rp.Publisher("testDriver",String,queue_size=10)
 	rate=rp.Rate(60)
 	while True:
 		pub.publish(".8,1,0")
