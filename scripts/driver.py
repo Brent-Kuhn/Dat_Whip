@@ -10,8 +10,8 @@ class steeringControl:
         self.time=0
         self.timeOut=60
         self.priority=0
-        #self.subscribeToWallCenter()
-        self.subscribeToTest()
+        self.subscribeToWallCenter()
+        #self.subscribeToTest()
         self.subscribeToEstop()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()

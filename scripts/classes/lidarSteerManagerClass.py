@@ -13,7 +13,7 @@ class LidarSteerManager:
     def steer(self, lidarData):
         error = self.error(lidarData)
         self.pid.update(error)
-        return LIDAR_STEER_SPEED * self.pid.output
+        return LIDAR_STEER_SPEED * error#self.pid.output
 
     def error(self, lidarData):
         leftArray, rightArray = lidarData
