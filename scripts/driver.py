@@ -10,31 +10,22 @@ class steeringControl:
         self.time=0
         self.timeOut=60
         self.priority=0
-        self.subscribeToWallCenter()
+        #self.subscribeToWallCenter()
+        self.subscribeToTest()
         self.subscribeToEstop()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
 
     def subscribeToWallCenter(self):
-        rp.Subscriber("wallCenter",String,self.centerCallback)
+        rp.Subscriber("wallCenter",String,self.driveCallback)
+
+    def subscribeToTest(self):
+        rp.Subscriber("testDrive",String,self.driveCallback)
 
     def subscribeToEstop(self):
-        rp.Subscriber("eStop",LaserScan,self.estopCallback)
+        rp.Subscriber("eStop",LaserScan,self.driveCallback)
 
-    def centerCallback(self,data):
-        driveData=data.data.split(",")
-        try:
-            if(driveData[2]>self.priority and self.time<=self.timeOut):
-                self.time+=1
-                self.priority=driveData[2]
-                self.drive(driveData[0],driveData[1])
-            else:
-                self.priority=0
-                self.time=0
-        except Exception:
-            pass
-
-    def estopCallback(self,data):
+    def driveCallback(self,data):
         driveData=data.data.split(",")
         try:
             if(driveData[2]>self.priority and self.time<=self.timeOut):
