@@ -18,7 +18,7 @@ class WallCentering:
 
     def scanCallback(self,data):
         steerDirection,speed=self.lidarSteer.steer(data.ranges)
-        self.pub.publish(str(speed)+","+str(steerDirection)+",1")
+        self.pub.publish(str(.5+speed)+","+str(steerDirection)+",1")
 
 if __name__ == '__main__':
     try:
