@@ -26,12 +26,12 @@ class steeringControl:
         if(int(driveData[2])>self.priority):
             self.priority=int(driveData[2])
             self.drive(float(driveData[0]),float(driveData[1]))
-	elif(int(driveData[2])==self.priority and self.time<self.timeOut):
-	    self.time+=1
-	    self.drive(float(driveData[0]),float(driveData[1]))
-	else:
-            self.priority-=1
-            self.time=0
+    	elif(int(driveData[2])==self.priority and self.time<self.timeOut):
+    	    self.time+=1
+    	    self.drive(float(driveData[0]),float(driveData[1]))
+    	else:
+                self.priority-=1
+                self.time=0
 
     def drive(self,speed,angle):
         drive_msg_stamped = AckermannDriveStamped()
