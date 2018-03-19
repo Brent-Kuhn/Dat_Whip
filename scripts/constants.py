@@ -74,11 +74,15 @@ DEBUG_STREAM_PORT = 8081
 ### Adjust the estop settings
 
 # The degree point to start looking for an object
-ESTOP_START = 180
-# The degree point to stop looking for an object
-ESTOP_STOP = 900
-# The distance of the object
-ESTOP_DISTANCE = .25
+ESTOP_FRONT_START = 360
+ESTOP_FRONT_STOP = 721
+ESTOP_FRONT_DISTANCE = .25
+
+ESTOP_RIGHT_START = 0
+ESTOP_RIGHT_STOP = 359
+ESTOP_LEFT_START = 722
+ESTOP_LEFT_STOP = 1080
+ESTOP_SIDE_DISTANCE = .18
 #
 #
 #
