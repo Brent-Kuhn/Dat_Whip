@@ -18,25 +18,57 @@ class LidarSteerManager:
         return MAX_STEER * self.pid.output
 
     def error(self, points):
-        right1 = points[180 - 1]
-        right2 = points[240 - 1]
-        left1 = points[900]
-        left2 = points[840]
+        FUTURE_WEIGHT = .25
+        PRESENT_WEIGHT = 1 - FUTURE_WEIGHT
+        diff_present = self.subErrorAtAngle(points, 90 - 5)
+        diff_future = self.subErrorAtAngle(points, 45)
+        diff = diff_present * PRESENT_WEIGHT + diff_future * FUTURE_WEIGHT
+        return LidarSteerManager.cappedMultiply(diff, LIDAR_STEER_MULT)
 
-        right_perp = right2/(math.acos(math.pi/6))
+    def subErrorAtAngle(self, lidarPoints, angle):
+        # angle = degrees
+        left = self.getPerpDistance(lidarPoints, -angle)
+        right = self.getPerpDistance(lidarPoints, angle)
+        left, right = LidarSteerManager.normalize(left, right)
+        sub_error = right - left
+        return sub_error
 
-        left_perp = left2/(math.acos(math.pi/6))
+    def getPerpDistance(self, lidarPoints, angle):
+        # Perpendicular
+        index = self.angleToLidarIndex(angle)
+        vectorDistance = lidarPoints[index]
+        return abs(LidarSteerManager.getXComponentOfVector(vectorDistance, 90 - angle))
 
-        right_avg = (right1 + right_perp)/2
-        left_avg = (left1 + left_perp)/2
+    def angleToLidarIndex(self, angle):
+        # angle = degrees
+        # 0 = center = 540
+        # - = left, + = right
+        MAX_ANGLE = 135
+        angle = LidarSteerManager.clip(int(angle), MAX_ANGLE)
+        return 1080 / 2 - 4 * angle
 
-        max_avg = max(left_avg, right_avg)
+    @staticmethod
+    def clip(value, absMaxValue):
+        value = max(value, -absMaxValue)
+        value = min(value, absMaxValue)
+        return value
 
-        diff = (right_avg/max_avg - left_avg/max_avg)
+    @staticmethod
+    def getXComponentOfVector(magnitude, direction):
+        # direction = degree
+        degree2Radian = math.pi / 180
+        return magnitude * math.cos(direction * degree2Radian)
 
-        if diff == 0:
+    @staticmethod
+    def normalize(left_distance, right_distance):
+        max_distance = max(left_distance, right_distance)
+        return left_distance / max_distance, right_distance / max_distance
+
+    @staticmethod
+    def cappedMultiply(value, by):
+        if value == 0:
             return 0
-        return min(abs(diff) * LIDAR_STEER_MULT, 1) * (diff / abs(diff))
+        return min(abs(value) * by, 1) * value / abs(value)
 
 def main():
     steerManager = LidarSteerManager()
