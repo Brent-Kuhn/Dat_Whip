@@ -3,13 +3,14 @@ import math
 
 from PID import PID
 import time
-from constants import MAX_STEER, LIDAR_PID_P, LIDAR_PID_I, LIDAR_PID_D
+from constants import MAX_STEER, LIDAR_PID_P, LIDAR_PID_I, LIDAR_PID_D, \
+    LIDAR_PID_SAMPLE_RATE
 
 class LidarSteerManager:
     def __init__(self):
         self.pid = PID(LIDAR_PID_P, LIDAR_PID_I, LIDAR_PID_D)
         self.pid.SetPoint = 0
-        self.pid.setSampleTime(0.01)
+        self.pid.setSampleTime(LIDAR_PID_SAMPLE_RATE)
 
     def steer(self, lidarData):
         error = self.error(lidarData)
@@ -33,7 +34,8 @@ class LidarSteerManager:
 
         diff = (right_avg/max_avg - left_avg/max_avg)
 
-        return diff
+        # return diff
+        return min(abs(diff) * 3, 1) * (diff / abs(diff))
 
 def main():
     steerManager = LidarSteerManager()
