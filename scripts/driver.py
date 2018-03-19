@@ -30,8 +30,8 @@ class steeringControl:
     	    self.time+=1
     	    self.drive(float(driveData[0]),float(driveData[1]))
     	else:
-                self.priority-=1
-                self.time=0
+            self.priority-=1
+            self.time=0
 
     def drive(self,speed,angle):
         drive_msg_stamped = AckermannDriveStamped()
