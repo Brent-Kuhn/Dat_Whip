@@ -15,7 +15,8 @@ class LidarSteerManager:
     def steer(self, lidarData):
         error = self.error(lidarData)
         self.pid.update(error)
-        return MAX_STEER * self.pid.output
+        speed = 1 - abs(self.pid.output)
+        return MAX_STEER * self.pid.output,speed
 
     def error(self, points):
         FUTURE_WEIGHT = .25
