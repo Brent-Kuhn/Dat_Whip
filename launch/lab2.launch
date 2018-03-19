@@ -1,0 +1,13 @@
+<!-- -*- mode: XML -*- -->
+<launch>
+  <arg name="racecar_version" default="racecar-v2" />
+
+  <node pkg="racecar" name="lidarSteer" type="wallCentering.py" /> 
+  <node pkg="racecar" name="eStop" type="estop.py" />
+  <node pkg="racecar" name="driver" type="driver.py" />
+
+  <include file="$(find racecar)/launch/includes/$(arg racecar_version)-teleop.launch.xml">
+    <arg name="racecar_version" value="$(arg racecar_version)" />
+  </include>
+
+</launch>
