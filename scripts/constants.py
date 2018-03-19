@@ -70,6 +70,19 @@ DEBUG_STREAM_PORT = 8081
 #
 #
 
+### Lidar ESTOP ###
+### Adjust the estop settings
+
+# The degree point to start looking for an object
+ESTOP_START = 180
+# The degree point to stop looking for an object
+ESTOP_STOP = 900
+# The distance of the object
+ESTOP_DISTANCE = .25
+#
+#
+#
+
 ### PID ###
 ### Adjust the PID steer controller parameters here ###
 
