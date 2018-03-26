@@ -19,7 +19,7 @@ class LidarSteerManager:
         return MAX_STEER * self.pid.output,speed
 
     def error(self, points):
-        FUTURE_WEIGHT = .5
+        FUTURE_WEIGHT = .65
         PRESENT_WEIGHT = 1 - FUTURE_WEIGHT
         diff_present = self.subErrorAtAngle(points, 90 - 5)
         diff_future = self.subErrorAtAngle(points, 45)
@@ -70,18 +70,3 @@ class LidarSteerManager:
         if value == 0:
             return 0
         return min(abs(value) * by, 1) * value / abs(value)
-
-def main():
-    steerManager = LidarSteerManager()
-    with open('testData.txt') as file:
-        for line in file:
-            line = line[:-1] # remove newline at end
-            data = line.split(',')
-            leftDistances = [float(data[0])]
-            rightDistances = [float(data[1])]
-            steer = steerManager.steer([leftDistances, rightDistances])
-            print('%3.1f -- %3.1f : %3.2f.' % (leftDistances[0], rightDistances[0], steer))
-            time.sleep(0.1)
-
-if __name__ == '__main__':
-    main()
