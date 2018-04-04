@@ -12,14 +12,30 @@ class steeringControl:
         self.priority=0
         self.subscribeToWallCenter()
         self.subscribeToEstop()
+        self.subscribeToSerpentine()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
 
     def subscribeToWallCenter(self):
-        rp.Subscriber("wallCenter",String,self.driveCallback)
+        rp.Subscriber("wallCenter",String,self.wallCenterCallback)
 
     def subscribeToEstop(self):
-        rp.Subscriber("eStop",String,self.driveCallback)
+        rp.Subscriber("eStop",String,self.estopCallback)
+
+    def subscribeToSerpentine(self):
+        rp.Subscriber("serpentine",String,self.serpentineCallback)
+
+    def wallCenterCallback(self, data):
+        print('Wall Centering says ')
+        self.driveCallback(data)
+
+    def estopCallback(self, data):
+        print('estop says ')
+        self.driveCallback(data)
+
+    def serpentineCallback(self, data):
+        print('Serpentine says ')
+        self.driveCallback(data)
 
     def driveCallback(self,data):
         driveData=data.data.split(",")
@@ -34,6 +50,7 @@ class steeringControl:
             self.time=0
 
     def drive(self,speed,angle):
+        print('move at angle %.2f at speed %.2f' % (angle, speed))
         drive_msg_stamped = AckermannDriveStamped()
         drive_msg = AckermannDrive()
         drive_msg.speed = speed

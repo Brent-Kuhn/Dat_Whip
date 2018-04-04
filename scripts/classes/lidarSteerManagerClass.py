@@ -3,6 +3,7 @@ import math
 
 from PID import PID
 import time
+from classes.LidarHelperClass import LidarHelper
 from constants import MAX_STEER, LIDAR_PID_P, LIDAR_PID_I, LIDAR_PID_D, \
     LIDAR_PID_SAMPLE_RATE, LIDAR_STEER_MULT
 
@@ -36,23 +37,9 @@ class LidarSteerManager:
 
     def getPerpDistance(self, lidarPoints, angle):
         # Perpendicular
-        index = self.angleToLidarIndex(angle)
+        index = LidarHelper.angleToLidarIndex(angle)
         vectorDistance = lidarPoints[index]
         return abs(LidarSteerManager.getXComponentOfVector(vectorDistance, 90 - angle))
-
-    def angleToLidarIndex(self, angle):
-        # angle = degrees
-        # 0 = center = 540
-        # - = left, + = right
-        MAX_ANGLE = 135
-        angle = LidarSteerManager.clip(int(angle), MAX_ANGLE)
-        return 1080 / 2 - 4 * angle
-
-    @staticmethod
-    def clip(value, absMaxValue):
-        value = max(value, -absMaxValue)
-        value = min(value, absMaxValue)
-        return value
 
     @staticmethod
     def getXComponentOfVector(magnitude, direction):
