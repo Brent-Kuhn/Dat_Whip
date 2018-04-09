@@ -38,7 +38,7 @@ def video():
 def steer(height,width,x,y):
     y = height - y
     angle = -.34 * math.atan2(x, y) *(2/math.pi)
-    speed = y / 188
+    speed = y / (height/2)
     return(str(speed)+","+str(angle)+","+"0")
 
 def picture():
