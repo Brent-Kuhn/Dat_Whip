@@ -10,7 +10,7 @@ class coneFinder:
     def __init__(self):
         rp.init_node("coneFinder",anonymous=False)
         self.pub=rp.Publisher("coneFinder",String,queue_size=10)
-        rp.spin()
+	rate = rp.Rate(60)
         cap = cv2.VideoCapture(1)
         while(not rp.is_shutdown()):
             _, image = cap.read()
@@ -19,9 +19,10 @@ class coneFinder:
             hsv = cv2.cvtColor(leftImage,cv2.COLOR_BGR2HSV)
             mask = self.colorFilter(hsv)
             x,y = self.findCenter(mask)
-            height, width, _ = leftImage.shape
-            self.steer(height,width,x,y)
-            rate.sleep()
+            if x!=0 and y!=0:
+	        height, width, _ = leftImage.shape
+                self.steer(height,width,x,y)
+                rate.sleep()
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
@@ -38,7 +39,7 @@ class coneFinder:
         orangeMax = np.array([10,255,255])
         maskOrange = cv2.inRange(hsv,orangeMin,orangeMax)
 
-        minBlue = np.array([100,75,75])
+        minBlue = np.array([100,90,90])
         maxBlue = np.array([120,255,255])
         maskBlue = cv2.inRange(hsv,minBlue,maxBlue)
         mask=cv2.bitwise_or(maskBlue,maskOrange)
@@ -46,14 +47,13 @@ class coneFinder:
 
     def steer(self,height,width,x,y):
         y = height - y
+	x = x - int(width/2)
         angle = -.34 * math.atan2(x, y) *(2/math.pi)
         speed = y / (height/2)
-	print("here"+str(angle)+", "+str(speed))
         self.pub.publish(str(speed)+","+str(angle)+","+"0")
 
 if __name__ == '__main__':
     try:
         coneFinder()
     except rp.ROSInterruptException:
-	print("here")
         pass
