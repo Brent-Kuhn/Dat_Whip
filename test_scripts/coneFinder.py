@@ -12,13 +12,16 @@ class coneFinder:
         self.pub=rp.Publisher("coneFinder",String,queue_size=10)
         rp.spin()
         cap = cv2.VideoCapture(1)
-        while(cap.isOpened()):
-            ret,image = cap.read()
-            hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
+        while(not rp.is_shutdown()):
+            _, image = cap.read()
+            leftImage = image[0:376,0:672]
+            rightImage = image[0:376,672:1344]
+            hsv = cv2.cvtColor(leftImage,cv2.COLOR_BGR2HSV)
             mask = self.colorFilter(hsv)
             x,y = self.findCenter(mask)
-            height, width, _ = image.shape
+            height, width, _ = leftImage.shape
             self.steer(height,width,x,y)
+            rate.sleep()
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
