@@ -26,7 +26,7 @@ def findLeftSmallest(arry):
 
 
 def rightDrive(rightSmallest):
-    steer = ((rightSmallest[0] * math.cos(math.radians(45 - rightSmallest[1]))) - 0.46) * -1#.34
+    steer = (.46 - .46 * (rightSmallest[0] * math.cos(math.radians(45 - rightSmallest[1]))))#.34
     speed = (rightSmallest[0] * math.sin(math.radians(45 - rightSmallest[1])))
     return str(1) + "," + str(steer)
 
