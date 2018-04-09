@@ -13,6 +13,7 @@ class steeringControl:
         self.subscribeToEstop()
         #self.subscribeToWallCenter()
         self.subscribeToConeFinder()
+        self.subscribeToSerpentine()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
 
@@ -21,6 +22,9 @@ class steeringControl:
 
     def subscribeToEstop(self):
         rp.Subscriber("eStop",String,self.driveCallback)
+
+    def subscribeToSerpentine(self):
+        rp.Subscriber("serpentine",String,self.driveCallback)
 
     def subscribeToConeFinder(self):
         rp.Subscriber("coneFinder",String,self.driveCallback)
