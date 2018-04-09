@@ -16,11 +16,11 @@ class coneFinder:
             _, image = cap.read()
             leftImage = image[0:376,0:672]
             rightImage = image[0:376,672:1344]
-            hsv = cv2.cvtColor(leftImage,cv2.COLOR_BGR2HSV)
+            hsv = cv2.cvtColor(rightImage,cv2.COLOR_BGR2HSV)
             mask = self.colorFilter(hsv)
             x,y = self.findCenter(mask)
             if x!=0 and y!=0:
-	        height, width, _ = leftImage.shape
+	        height, width, _ = rightImage.shape
                 self.steer(height,width,x,y)
                 rate.sleep()
 
