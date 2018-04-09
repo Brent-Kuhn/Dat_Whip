@@ -10,8 +10,9 @@ class steeringControl:
         self.time=0
         self.timeOut=60
         self.priority=0
-        self.subscribeToWallCenter()
         self.subscribeToEstop()
+        #self.subscribeToWallCenter()
+        self.subscribeToConeFinder()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
 
@@ -20,6 +21,9 @@ class steeringControl:
 
     def subscribeToEstop(self):
         rp.Subscriber("eStop",String,self.driveCallback)
+
+    def subscribeToConeFinder(self):
+        rp.Subscriber("coneFinder",String,self.driveCallback)
 
     def driveCallback(self,data):
         driveData=data.data.split(",")
