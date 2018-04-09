@@ -11,14 +11,14 @@ class coneFinder:
         rp.init_node("coneFinder",anonymous=False)
         self.pub=rp.Publisher("coneFinder",String,queue_size=10)
         rp.spin()
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(1)
         while(cap.isOpened()):
             ret,image = cap.read()
             hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-            mask = colorFilter(hsv)
-            x,y = findCenter(mask)
+            mask = self.colorFilter(hsv)
+            x,y = self.findCenter(mask)
             height, width, _ = image.shape
-            steer(height,width,x,y)
+            self.steer(height,width,x,y)
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
@@ -45,10 +45,12 @@ class coneFinder:
         y = height - y
         angle = -.34 * math.atan2(x, y) *(2/math.pi)
         speed = y / (height/2)
+	print("here"+str(angle)+", "+str(speed))
         self.pub.publish(str(speed)+","+str(angle)+","+"0")
 
 if __name__ == '__main__':
     try:
         coneFinder()
     except rp.ROSInterruptException:
+	print("here")
         pass
