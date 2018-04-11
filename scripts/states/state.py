@@ -7,4 +7,4 @@ class State(object):
         return False
 
     def nextState(self, data):
-        return State()
+        return 'State'

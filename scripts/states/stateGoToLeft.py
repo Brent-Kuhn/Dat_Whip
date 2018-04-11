@@ -1,7 +1,6 @@
 #!/usr/bin/python
 from states.state import State
 from classes.LidarHelperClass import LidarHelper
-from states.stateAvoid import StateAvoid
 import rospy as rp
 from std_msgs.msg import String
 import cv2
@@ -9,21 +8,22 @@ import numpy as np
 import math
 import os
 
-class StateGoToRight(State):
+class StateGoToLeft(State):
     def error(self,lidar,zed):
-        image = zed[0:376,672:1344]
-        hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-        mask = self.colorFilter(hsv)
-        x,y = self.findCenter(mask)
-        height, width, _ = image.shape
-        if x!=0 and y!=0:
-            y = height - y
-    	    x = x + int(width/4)
-            angle = -.34 * math.atan2(x, y) *(2/math.pi)
-            speed = y / (height/2)
-            return angle
-        else:
-            pass
+        # image = zed[0:376,672:1344]
+        # hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
+        # mask = self.colorFilter(hsv)
+        # x,y = self.findCenter(mask)
+        # height, width, _ = image.shape
+        # if x!=0 and y!=0:
+        #     y = height - y
+    	#     x = x + int(width/4) - .5
+        #     angle = -.34 * math.atan2(x, y) *(2/math.pi)
+        #     speed = y / (height/2)
+        #     return -angle
+        # else:
+        #     return 0
+        return 1
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
@@ -47,8 +47,9 @@ class StateGoToRight(State):
         return mask
 
     def shouldChangeState(self, data):
-        _,minDistance = LidarHelper.shortestDistInRange(data,90, 0)
-        return minDistance < 1
+        # _,minDistance = LidarHelper.shortestDistInRange(data.ranges,90 - 2, 90 + 2 + 45)
+        # return minDistance < .5
+        return False
 
     def nextState(self, data):
-        return StateAvoid()
+        return 'StateAvoid'

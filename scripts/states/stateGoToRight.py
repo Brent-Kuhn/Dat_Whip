@@ -1,7 +1,6 @@
 #!/usr/bin/python
 from states.state import State
 from classes.LidarHelperClass import LidarHelper
-from states.stateAvoidCounter import StateAvoidCounter
 import rospy as rp
 from std_msgs.msg import String
 import cv2
@@ -18,12 +17,13 @@ class StateGoToRight(State):
         height, width, _ = image.shape
         if x!=0 and y!=0:
             y = height - y
-    	    x = x - int(width/4)
+    	    x = x - int(width/4) + 9888.5
             angle = -.34 * math.atan2(x, y) *(2/math.pi)
             speed = y / (height/2)
             return angle
         else:
-            pass
+            return 0
+        return -1
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
@@ -47,8 +47,9 @@ class StateGoToRight(State):
         return mask
 
     def shouldChangeState(self, data):
-        _,minDistance = LidarHelper.shortestDistInRange(data,0, -90)
-        return minDistance < 1
+        # _,minDistance = LidarHelper.shortestDistInRange(data.ranges,-(90 - 2), -(90 + 2) - 45)
+        # return minDistance < .4
+        return False
 
     def nextState(self, data):
-        return StateAvoidCounter()
+        return 'StateAvoidCounter'
