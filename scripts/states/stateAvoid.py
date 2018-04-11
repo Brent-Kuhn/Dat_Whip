@@ -1,7 +1,15 @@
 from states.state import State
 from classes.LidarHelperClass import LidarHelper
+from states.stateGoToRight import StateGoToRight
 
 class StateAvoid(State):
+
+    def shouldChangeState(self, data):
+        _,minDistance = LidarHelper.shortestDistInRange(data,-2, 2)
+        return minDistance < 1
+
+    def nextState(self, data):
+        return StateGoToRight()
 
     def getMinAngle(self):
         return 90 - 45
@@ -18,7 +26,7 @@ class StateAvoid(State):
     def getSteerDirection(self):
         return -1
 
-    def error(self, data):
+    def error(self, data, zed):
         a = .5
         b = 1 - a
         minIndex, minDistance = LidarHelper.shortestDistInRange(data, self.getMinAngle(), self.getMaxAngle())

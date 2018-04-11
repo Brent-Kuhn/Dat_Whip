@@ -1,6 +1,6 @@
 class State(object):
 
-    def error(self, data):
+    def error(self, lidar, zed):
         return 0
 
     def shouldChangeState(self, data):
