@@ -46,10 +46,10 @@ class StateGoToLeft(State):
         mask=cv2.bitwise_or(maskBlue,maskOrange)
         return mask
 
-    def shouldChangeState(self, data):
-        # _,minDistance = LidarHelper.shortestDistInRange(data.ranges,90 - 2, 90 + 2 + 45)
-        # return minDistance < .5
-        return False
+    def shouldChangeState(self, lidar, zed):
+        _,minDistance = LidarHelper.shortestDistInRange(lidar,90 - 2, 90 + 2 + 45)
+        return minDistance < .5
+        # return False
 
-    def nextState(self, data):
+    def nextState(self, lidar, zed):
         return 'StateAvoid'

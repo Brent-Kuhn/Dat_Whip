@@ -62,8 +62,8 @@ class Serpentine():
         self.pub.publish('1,' + str(-self.pid.output) + ',1')
 
     def updateState(self, data):
-        if self.state.shouldChangeState(data):
-            stateName = self.state.nextState(data)
+        if self.state.shouldChangeState(data.ranges, self.zedImage):
+            stateName = self.state.nextState(data.ranges, self.zedImage)
             self.state = Serpentine.stateFromStateName(stateName)
 
     @staticmethod

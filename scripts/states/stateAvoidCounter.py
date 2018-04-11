@@ -2,7 +2,7 @@ from stateAvoid import StateAvoid
 
 class StateAvoidCounter(StateAvoid):
 
-    def nextState(self, data):
+    def nextState(self, lidar, zed):
         return 'StateGoToLeft'
 
     def getMinAngle(self):

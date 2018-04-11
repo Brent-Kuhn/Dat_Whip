@@ -10,19 +10,19 @@ import os
 
 class StateGoToRight(State):
     def error(self,lidar,zed):
-        image = zed[0:376,0:672]
-        hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-        mask = self.colorFilter(hsv)
-        x,y = self.findCenter(mask)
-        height, width, _ = image.shape
-        if x!=0 and y!=0:
-            y = height - y
-    	    x = x - int(width/4) + 9888.5
-            angle = -.34 * math.atan2(x, y) *(2/math.pi)
-            speed = y / (height/2)
-            return angle
-        else:
-            return 0
+        # image = zed[0:376,0:672]
+        # hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
+        # mask = self.colorFilter(hsv)
+        # x,y = self.findCenter(mask)
+        # height, width, _ = image.shape
+        # if x!=0 and y!=0:
+        #     y = height - y
+    	#     x = x - int(width/4) + 9888.5
+        #     angle = -.34 * math.atan2(x, y) *(2/math.pi)
+        #     speed = y / (height/2)
+        #     return angle
+        # else:
+        #     return 0
         return -1
 
     def findCenter(self,mask):
@@ -46,10 +46,10 @@ class StateGoToRight(State):
         mask=cv2.bitwise_or(maskBlue,maskOrange)
         return mask
 
-    def shouldChangeState(self, data):
-        # _,minDistance = LidarHelper.shortestDistInRange(data.ranges,-(90 - 2), -(90 + 2) - 45)
-        # return minDistance < .4
-        return False
+    def shouldChangeState(self, lidar, zed):
+        _,minDistance = LidarHelper.shortestDistInRange(lidar,-(90 - 2), -(90 + 2) - 45)
+        return minDistance < .4
+        # return False
 
-    def nextState(self, data):
+    def nextState(self, lidar, zed):
         return 'StateAvoidCounter'
