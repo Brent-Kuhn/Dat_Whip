@@ -1,6 +1,10 @@
 from states.stateAvoid import StateAvoid
+from states.stateGoToLeft import StateGoToLeft
 
 class StateAvoidCounter(StateAvoid):
+
+    def nextState(self, data):
+        return StateGoToLeft()
 
     def getMinAngle(self):
         return -StateAvoid.getMinAngle(self)
