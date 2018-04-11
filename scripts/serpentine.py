@@ -33,11 +33,11 @@ class Serpentine():
         error = self.state.error(data.ranges)
         print('error = %f' % error)
         self.steer(error)
-        # self.updateState(data)
+        self.updateState(data)
 
-    # def updateState(self, data):
-    #     if self.state.shouldChangeState(data):
-    #         self.state = self.state.nextState(data)
+    def updateState(self, data):
+        if self.state.shouldChangeState(data):
+            self.state = self.state.nextState(data)
 
     def steer(self, direction):
         self.pid.update(direction)
