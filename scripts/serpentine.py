@@ -4,11 +4,13 @@ from classes.LidarHelperClass import LidarHelper
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 from classes.PID import PID
-from states.state import State
-from states.stateAvoid import StateAvoid
+from states.stateCircleLeft import StateCircleLeft
+from states.stateCircleRight import StateCircleRight
 from states.stateAvoidCounter import StateAvoidCounter
-from states.stateGoToRight import StateGoToRight
+from states.stateTurnLeft import StateTurnLeft
+from states.stateTurnRight import StateTurnRight
 from states.stateGoToLeft import StateGoToLeft
+from states.stateGoToRight import StateGoToRight
 import cv2
 from time import time
 
@@ -39,11 +41,10 @@ class Serpentine():
         rp.Subscriber('scan', LaserScan, self.callback)
 
     def callback(self, data):
-        # print('\n\n')
         zedImage = self.readZedImage()
         error = self.state.error(data.ranges, zedImage)
-        print(type(self.state).__name__)
-        print('error = %f' % error)
+        # print(type(self.state).__name__)
+        # print('error = %f' % error)
         self.steer(error)
         self.updateState(data)
 
@@ -69,10 +70,12 @@ class Serpentine():
     @staticmethod
     def stateFromStateName(stateName):
         return {
-            'StateAvoid': StateAvoid(),
-            'StateAvoidCounter': StateAvoidCounter(),
             'StateGoToRight': StateGoToRight(),
-            'StateGoToLeft': StateGoToLeft()
+            'StateGoToLeft': StateGoToLeft(),
+            'StateTurnRight': StateTurnRight(),
+            'StateTurnLeft': StateTurnLeft(),
+            'StateCircleLeft': StateCircleLeft(),
+            'StateCircleRight': StateCircleRight()
         }[stateName]
 
 if __name__ == '__main__':

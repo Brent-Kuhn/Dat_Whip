@@ -1,6 +1,6 @@
 from classes.LidarHelperClass import LidarHelper
 
-class StateAvoid(object):
+class StateCircleRight(object):
 
     def shouldChangeState(self, lidar, zed):
         # TODO IS CONE OR CUBE
