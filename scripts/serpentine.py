@@ -43,8 +43,8 @@ class Serpentine():
     def callback(self, data):
         zedImage = self.readZedImage()
         error = self.state.error(data.ranges, zedImage)
-        # print(type(self.state).__name__)
-        # print('error = %f' % error)
+        print(type(self.state).__name__)
+        print('error = %f' % error)
         self.steer(error)
         self.updateState(data)
 

@@ -20,7 +20,7 @@ class StateTurn(object):
     def lidarSomethingIsInFront(self, lidar):
         FRONT_RANGE = 2
         _, minDistance = LidarHelper.shortestDistInRange(lidar, -FRONT_RANGE, FRONT_RANGE)
-        return minDistance < .7
+        return minDistance < .9
 
     def zedSomethingIsInFront(self):
         return self.zedObject != ''

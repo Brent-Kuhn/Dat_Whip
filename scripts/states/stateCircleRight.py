@@ -3,9 +3,8 @@ from classes.LidarHelperClass import LidarHelper
 class StateCircleRight(object):
 
     def shouldChangeState(self, lidar, zed):
-        # TODO IS CONE OR CUBE
         _, minDistance = LidarHelper.shortestDistInRange(lidar, -10, 10)
-        return minDistance < .6
+        return minDistance < .6 and False
 
     def nextState(self, lidar, zed):
         return 'StateGoToRight'
