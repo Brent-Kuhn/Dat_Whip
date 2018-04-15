@@ -8,7 +8,7 @@ import numpy as np
 DISPLAY_IMAGE = False
 
 # Whether to send images over network (leave FALSE unless specifically debugging)
-STREAM_IMAGE = False
+STREAM_IMAGE = True
 
 #
 #

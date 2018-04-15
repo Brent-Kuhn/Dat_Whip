@@ -16,6 +16,12 @@ from states.state45Left import State45Left
 from states.state45Right import State45Right
 import cv2
 from time import time
+from sensor_msgs.msg import Image
+from sensor_msgs.msg import Joy
+from cv_bridge import CvBridge, CvBridgeError
+import numpy as np
+from constants import DISPLAY_IMAGE, STREAM_IMAGE
+from object_detection.object_detection_images import ObjectDetector
 
 SERPENTINE_PID_P = 1
 SERPENTINE_PID_I = 0
@@ -33,6 +39,8 @@ class Serpentine():
         rp.init_node('Serpentine', anonymous=True)
         self.state = StateGoToRight()
         self.pub = rp.Publisher('/serpentine', String, queue_size=10)
+        self.debugPub = rp.Publisher('debugLeft', Image, queue_size=1)
+        self.bridge = CvBridge()
 
         self.lastState = ''
 
@@ -43,6 +51,7 @@ class Serpentine():
         self.capture = cv2.VideoCapture(1)
         self.subscribeToImu()
         self.subscribeToLidar()
+        self.subscribeToJoy()
         rp.spin()
 
     def subscribeToImu(self):
@@ -54,6 +63,9 @@ class Serpentine():
     def subscribeToLidar(self):
         rp.Subscriber('scan', LaserScan, self.callback)
 
+    def subscribeToJoy(self):
+        rp.Subscriber('/vesc/joy', Joy, self.joyCallback)
+
     def callback(self, data):
         self.readZedImage()
         error = self.state.error(data.ranges, self.zedImage, self.imu)
@@ -63,6 +75,17 @@ class Serpentine():
             print(curState)
         self.steer(error)
         self.updateState(data)
+
+    def joyCallback(self,data):
+        buttons = data.buttons
+        if buttons[0] == 1:
+            self.state = StateCircleLeft()
+        elif buttons[1] == 1:
+            self.state = StateCircleRight()
+        elif buttons[2] == 1:
+            self.state = StateGoToRight()
+        elif buttons[3] == 1:
+            self.state = StateGoToLeft()
 
     def readZedImage(self):
         curTime = time()
@@ -79,7 +102,19 @@ class Serpentine():
         self.pub.publish('1,' + str(-self.pid.output) + ',1')
 
     def updateState(self, data):
-        if self.state.shouldChangeState(data.ranges, self.zedImage, self.imu):
+        # message = self.bridge.cv2_to_imgmsg(self.zedImage, encoding='bgr8')
+        shouldChange = self.state.shouldChangeState(data.ranges, self.zedImage, self.imu)
+        # try:
+        #     message = self.bridge.cv2_to_imgmsg(self.state.debugImage, encoding='bgr8')
+        # except:
+        #     message = self.bridge.cv2_to_imgmsg(np.zeros((672, 376, 3), np.uint8), encoding='bgr8')
+        # self.debugPub.publish(message)
+        if DISPLAY_IMAGE or STREAM_IMAGE:
+            d = ObjectDetector()
+            d.findMainObject(self.zedImage)
+            message = self.bridge.cv2_to_imgmsg(d.debugImage, encoding='bgr8')
+            self.debugPub.publish(message)
+        if shouldChange:
             stateName = self.state.nextState(data.ranges, self.zedImage, self.imu)
             self.state = Serpentine.stateFromStateName(stateName)
 
