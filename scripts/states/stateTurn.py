@@ -2,10 +2,7 @@
 from classes.LidarHelperClass import LidarHelper
 import rospy as rp
 from std_msgs.msg import String
-
-def findMainObject(zed):
-    # TODO replace with Brent's awesome method
-    return 'cone'
+from object_detection.object_detection_images import findMainObject
 
 class StateTurn(object):
 
@@ -20,7 +17,7 @@ class StateTurn(object):
     def lidarSomethingIsInFront(self, lidar):
         FRONT_RANGE = 2
         _, minDistance = LidarHelper.shortestDistInRange(lidar, -FRONT_RANGE, FRONT_RANGE)
-        return minDistance < .9
+        return minDistance < 2.3
 
     def zedSomethingIsInFront(self):
         return self.zedObject != ''

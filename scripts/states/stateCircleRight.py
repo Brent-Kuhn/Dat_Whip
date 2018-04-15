@@ -1,10 +1,27 @@
 from classes.LidarHelperClass import LidarHelper
+from object_detection.object_detection_images import findMainObject
 
 class StateCircleRight(object):
 
     def shouldChangeState(self, lidar, zed):
-        _, minDistance = LidarHelper.shortestDistInRange(lidar, -10, 10)
-        return minDistance < .6 and False
+        return self.somethingIsInFront(lidar, zed)
+
+    def somethingIsInFront(self, lidar, zed):
+        self.zedObject = findMainObject(zed)
+        return self.lidarSomethingIsInFront(lidar) \
+            and self.zedSomethingIsInFront()
+
+    def lidarSomethingIsInFront(self, lidar):
+        FRONT_RANGE = 2
+        _, minDistance = LidarHelper.shortestDistInRange(lidar, -FRONT_RANGE, FRONT_RANGE)
+        return minDistance < 2.3
+
+    def zedSomethingIsInFront(self):
+        return self.zedObject != ''
+
+    def zedConeIsInFront(self):
+        return self.zedObject == 'cone'
+
 
     def nextState(self, lidar, zed):
         return 'StateGoToRight'
