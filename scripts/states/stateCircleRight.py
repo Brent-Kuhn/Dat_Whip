@@ -7,9 +7,10 @@ class StateCircleRight(object):
         return self.somethingIsInFront(lidar, zed)
 
     def somethingIsInFront(self, lidar, zed):
+        if not self.lidarSomethingIsInFront(lidar):
+            return False
         self.zedObject = findMainObject(zed)
-        return self.lidarSomethingIsInFront(lidar) \
-            and self.zedSomethingIsInFront()
+        return self.zedSomethingIsInFront()
 
     def lidarSomethingIsInFront(self, lidar):
         FRONT_RANGE = 2

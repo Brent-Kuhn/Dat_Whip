@@ -8,7 +8,7 @@ class StateGoToSide(object):
 
     def error(self, lidar, zed):
         minIndex, minDistance = LidarHelper.shortestDistInRange(\
-            lidar, self.direction() * -(90 + 45), self.direction() * 45)
+            lidar, self.direction() * -(90 + 5), self.direction() * 45)
         minAngle = LidarHelper.lidarIndexToAngle(minIndex)
         if minDistance > 2:
             return 0

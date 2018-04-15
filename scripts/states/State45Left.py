@@ -1,10 +1,10 @@
 #!/usr/bin/python
-from states.stateTurn import StateTurn
+from states.State45 import State45
 
-class StateTurnLeft(StateTurn):
+class State45Left(State45):
     def error(self, lidar, zed):
         return 1 # Turn left, indiscriminately
         # TODO don't hit the cone if possible
 
     def nextState(self, lidar, zed):
-        return 'StateGoToLeft' if self.zedConeIsInFront() else 'State45Left'
+        return 'StateCircleRight'
