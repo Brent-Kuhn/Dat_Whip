@@ -2,6 +2,7 @@
 import rospy as rp
 from classes.LidarHelperClass import LidarHelper
 from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import Imu
 from std_msgs.msg import String
 from classes.PID import PID
 from states.stateCircleLeft import StateCircleLeft
@@ -11,6 +12,8 @@ from states.stateTurnLeft import StateTurnLeft
 from states.stateTurnRight import StateTurnRight
 from states.stateGoToLeft import StateGoToLeft
 from states.stateGoToRight import StateGoToRight
+from states.state45Left import State45Left
+from states.state45Right import State45Right
 import cv2
 from time import time
 
@@ -31,20 +34,33 @@ class Serpentine():
         self.state = StateGoToRight()
         self.pub = rp.Publisher('/serpentine', String, queue_size=10)
 
+        self.lastState = ''
+
+        self.imu = None
+
         self.lastRecordedTime = 0
         self.zedImage = None
         self.capture = cv2.VideoCapture(1)
+        self.subscribeToImu()
         self.subscribeToLidar()
         rp.spin()
+
+    def subscribeToImu(self):
+        rp.Subscriber('imu', Imu, self.imuCallback)
+
+    def imuCallback(self, data):
+        self.imu = data
 
     def subscribeToLidar(self):
         rp.Subscriber('scan', LaserScan, self.callback)
 
     def callback(self, data):
-        zedImage = self.readZedImage()
-        error = self.state.error(data.ranges, zedImage)
-        print(type(self.state).__name__)
-        print('error = %f' % error)
+        self.readZedImage()
+        error = self.state.error(data.ranges, self.zedImage, self.imu)
+        curState = type(self.state).__name__
+        if curState != self.lastState:
+            self.lastState = curState
+            print(curState)
         self.steer(error)
         self.updateState(data)
 
@@ -63,8 +79,8 @@ class Serpentine():
         self.pub.publish('1,' + str(-self.pid.output) + ',1')
 
     def updateState(self, data):
-        if self.state.shouldChangeState(data.ranges, self.zedImage):
-            stateName = self.state.nextState(data.ranges, self.zedImage)
+        if self.state.shouldChangeState(data.ranges, self.zedImage, self.imu):
+            stateName = self.state.nextState(data.ranges, self.zedImage, self.imu)
             self.state = Serpentine.stateFromStateName(stateName)
 
     @staticmethod
@@ -75,7 +91,9 @@ class Serpentine():
             'StateTurnRight': StateTurnRight(),
             'StateTurnLeft': StateTurnLeft(),
             'StateCircleLeft': StateCircleLeft(),
-            'StateCircleRight': StateCircleRight()
+            'StateCircleRight': StateCircleRight(),
+            'State45Left': State45Left(),
+            'State45Right': State45Right()
         }[stateName]
 
 if __name__ == '__main__':

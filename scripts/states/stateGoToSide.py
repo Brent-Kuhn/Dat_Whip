@@ -6,7 +6,7 @@ GOAL_X = .5
 
 class StateGoToSide(object):
 
-    def error(self, lidar, zed):
+    def error(self, lidar, zed, imu):
         minIndex, minDistance = LidarHelper.shortestDistInRange(\
             lidar, self.direction() * -(90 + 5), self.direction() * 45)
         minAngle = LidarHelper.lidarIndexToAngle(minIndex)
@@ -16,7 +16,7 @@ class StateGoToSide(object):
 
         return self.direction() * (offsetX - GOAL_X)
 
-    def shouldChangeState(self, lidar, zed):
+    def shouldChangeState(self, lidar, zed, imu):
         LEFT_RANGE = 2
         _, minDistance = LidarHelper.shortestDistInRange(\
             lidar, self.direction() * -90 - LEFT_RANGE, self.direction() * -90 + LEFT_RANGE)

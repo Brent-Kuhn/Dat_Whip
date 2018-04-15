@@ -6,7 +6,7 @@ from object_detection.object_detection_images import findMainObject
 
 class StateTurn(object):
 
-    def shouldChangeState(self, lidar, zed):
+    def shouldChangeState(self, lidar, zed, imu):
         return self.somethingIsInFront(lidar, zed)
 
     def somethingIsInFront(self, lidar, zed):

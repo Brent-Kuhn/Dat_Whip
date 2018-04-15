@@ -7,5 +7,5 @@ class StateGoToLeft(StateGoToSide):
     def direction(self):
         return -1
 
-    def nextState(self, lidar, zed):
+    def nextState(self, lidar, zed, imu):
         return 'StateTurnRight'

@@ -2,7 +2,7 @@ from states.stateCircleRight import StateCircleRight
 
 class StateCircleLeft(StateCircleRight):
 
-    def nextState(self, lidar, zed):
+    def nextState(self, lidar, zed, imu):
         return 'StateGoToLeft'
 
     def getMinAngle(self):

@@ -1,10 +1,38 @@
 from classes.LidarHelperClass import LidarHelper
 from object_detection.object_detection_images import findMainObject
+import math
 
 class StateCircleRight(object):
 
-    def shouldChangeState(self, lidar, zed):
+    def __init__(self):
+        self.startOrientationWasSet = False
+
+    def shouldChangeState(self, lidar, zed, imu):
+        # return self.hasTurned180(imu) and self.somethingIsInFront(lidar, zed)
         return self.somethingIsInFront(lidar, zed)
+
+    def hasTurned180(self, imu):
+        if not self.startOrientationWasSet:
+            self.startOrientationWasSet = True
+            # self.startOrientation = self.verticalOrientation(imu)
+            self.startOrientation = time()
+        # offsetOrient = self.verticalOrientation(imu) - self.startOrientation
+        # print(offsetOrient)
+        # return abs(offsetOrient) > .5
+        return time() > self.startOrientation + 5 # 5 seconds
+
+    # def verticalOrientation(self, imu):
+    #     x, y, z = self.quatToXYZ(imu.orientation)
+    #     return y
+    #
+    # def quatToXYZ(self, quat):
+    #     angle = 2 * math.acos(quat.w)
+    #     qw2 = quat.w * quat.w
+    #     denom = math.sqrt(1 - qw2)
+    #     x = quat.x / denom
+    #     y = quat.y / denom
+    #     z = quat.z / denom
+    #     return x, y, z
 
     def somethingIsInFront(self, lidar, zed):
         if not self.lidarSomethingIsInFront(lidar):
@@ -24,7 +52,7 @@ class StateCircleRight(object):
         return self.zedObject == 'cone'
 
 
-    def nextState(self, lidar, zed):
+    def nextState(self, lidar, zed, imu):
         return 'StateGoToRight'
 
     def getMinAngle(self):
@@ -42,7 +70,7 @@ class StateCircleRight(object):
     def getSteerDirection(self):
         return -1
 
-    def error(self, lidar, zed):
+    def error(self, lidar, zed, imu):
         a = .5
         b = 1 - a
         minIndex, minDistance = LidarHelper.shortestDistInRange(lidar, self.getMinAngle(), self.getMaxAngle())
