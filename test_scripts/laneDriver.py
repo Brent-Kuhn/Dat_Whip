@@ -5,32 +5,35 @@ import cv2
 import numpy as np
 import math
 import os
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 
 class LaneDriver:
     def __init__(self):
         rp.init_node("laneCenter",anonymous=False)
         self.pub=rp.Publisher("laneCenter",String,queue_size=10)
-        rate = rp.Rate(60)
-        cap = cv2.VideoCapture(1)
-        while(not rp.is_shutdown()):
-            _, image = cap.read()
-            leftImage = image[0:376,0:672]
-            rightImage = image[0:376,672:1344]
-            leftSpeed,leftAngle = self.getSteering(leftImage)
-            rightSpeed,rightAngle = self.getSteering(rightImage)
-            finalSpeed = (leftSpeed+rightSpeed)/2
-            finalAngle = (leftAngle+rightAngle)/2
-            if not (finalSpeed == 0 and finalAngle == 0):
-                self.pub.publish(str(finalSpeed)+","+str(finalAngle)+","+"1")
-            rate.sleep()
+        self.bridge = CvBridge()
+	rp.Subscriber("zedImage",Image,self.zedCallback)
+	rp.spin()
+
+    def zedCallback(self,data):
+         image = self.bridge.imgmsg_to_cv2(data,desired_encoding="passthrough")
+         leftImage = image[0:376,0:672]
+         rightImage = image[0:376,672:1344]
+         leftSpeed,leftAngle = self.getSteering(leftImage)
+         rightSpeed,rightAngle = self.getSteering(rightImage)
+         finalSpeed = (leftSpeed+rightSpeed)/2
+         finalAngle = (leftAngle+rightAngle)/2
+         if not (finalSpeed == 0 and finalAngle == 0):
+             self.pub.publish(str(finalSpeed)+","+str(finalAngle)+","+"1")
 
     def getSteering(self,image):
         current=image[255:image.shape[0],0:image.shape[1]]
         future=image[134:255,0:image.shape[1]]
         currentSpeed,currentAngle = self.processImage(current)
         futureSpeed,futureAngle = self.processImage(future)
-        totalSpeed = (futureSpeed * .7) + (currentSpeed * .3)
-        totalAngel = (futureAngle * .7) + (currentAngle * .3)
+        totalSpeed = (futureSpeed * .8) + (currentSpeed * .2)
+        totalAngel = (futureAngle * .8) + (currentAngle * .2)
         return totalSpeed,totalAngel
 
     def processImage(self,image):
@@ -53,8 +56,8 @@ class LaneDriver:
         return cX,cY
 
     def maskImage(self,hsv):
-        minBlue = np.array([0,0,89])
-        maxBlue = np.array([101,78,150])
+        minBlue = np.array([56,0,87])
+        maxBlue = np.array([120,155,255])
         maskBlue = cv2.inRange(hsv,minBlue,maxBlue)
         return maskBlue
 

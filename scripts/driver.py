@@ -11,10 +11,14 @@ class steeringControl:
         self.timeOut=60
         self.priority=0
         self.subscribeToWallCenter()
+	self.subscribeToLaneCenter()
         self.subscribeToEstop()
         self.subscribeToSerpentine()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
+
+    def subscribeToLaneCenter(self):
+        rp.Subscriber("laneCenter",String,self.driveCallback)
 
     def subscribeToWallCenter(self):
         rp.Subscriber("wallCenter",String,self.wallCenterCallback)
