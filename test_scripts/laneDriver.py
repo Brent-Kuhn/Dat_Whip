@@ -25,8 +25,8 @@ class LaneDriver:
          finalSpeed = (leftSpeed+rightSpeed)/2
          finalAngle = (leftAngle+rightAngle)/2
          priority = leftPriority if leftPriority > rightPriority else rightPriority
-         if not (finalSpeed == 0 and finalAngle == 0):
-             self.pub.publish(str(finalSpeed)+","+str(finalAngle)+",1")#+priority)
+         if not (finalSpeed == 0 or finalAngle == 0):
+             self.pub.publish(str(finalSpeed)+","+str(finalAngle)+","+str(priority))
 
     def getSteering(self,image):
         current=image[255:image.shape[0],0:image.shape[1]]
@@ -48,10 +48,11 @@ class LaneDriver:
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
-        contours = cv2.findContours(blur,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+	closed = cv2.morphologyEx(blur,cv2.MORPH_CLOSE,np.ones((5,5),np.uint8))
+        contours = cv2.findContours(closed,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
         M = cv2.moments(contours[0])
         if(M["m00"]==0):
-            return 0,0
+            return 0,0,0
         cX = int(M["m10"] / M["m00"])
         cY = int(M["m01"] / M["m00"])
         return cX,cY,M["m00"]
@@ -62,12 +63,12 @@ class LaneDriver:
         maskBlue = cv2.inRange(hsv,minBlue,maxBlue)
         return maskBlue
 
-    def steer(self,height,width,x,y):
+    def steer(self,height,width,x,y,area):
         y = height - y
         x = x - (width/2)
         angle = -.34 * math.atan2(x, y) *(2/math.pi)
         speed = ((y * 1.0)/ height) * 2
-        if(area>SOMEMINNUMBER):
+        if(area>2210000.0):
             priority = "3"
         else:
             priority = "1"

@@ -13,7 +13,7 @@ class steeringControl:
         self.subscribeToWallCenter()
 	self.subscribeToLaneCenter()
         self.subscribeToEstop()
-        self.subscribeToSerpentine()
+        #self.subscribeToSerpentine()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
 

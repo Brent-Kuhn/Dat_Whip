@@ -34,7 +34,7 @@ class LidarSteerManager:
         right = self.getPerpDistance(lidarPoints, angle)
         left, right = LidarSteerManager.normalize(left, right)
         # Attempting to code without car.....
-        if(left < .5 or right < .5):
+        if(left < .75 or right < .75):
             self.priority = "2"
         else:
             self.priority = "0"
