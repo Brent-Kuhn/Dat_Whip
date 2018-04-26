@@ -17,8 +17,8 @@ class WallCentering:
         rp.Subscriber("scan",LaserScan,self.scanCallback)
 
     def scanCallback(self,data):
-        steerDirection,speed=self.lidarSteer.steer(data.ranges)
-        self.pub.publish(str(.5+speed)+","+str(steerDirection)+",1")
+        steerDirection,speed,priority=self.lidarSteer.steer(data.ranges)
+        self.pub.publish(str(.5+speed)+","+str(steerDirection)+","+priority)
 
 if __name__ == '__main__':
     try:

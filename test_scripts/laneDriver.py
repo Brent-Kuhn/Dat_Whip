@@ -20,30 +20,31 @@ class LaneDriver:
          image = self.bridge.imgmsg_to_cv2(data,desired_encoding="passthrough")
          leftImage = image[0:376,0:672]
          rightImage = image[0:376,672:1344]
-         leftSpeed,leftAngle = self.getSteering(leftImage)
-         rightSpeed,rightAngle = self.getSteering(rightImage)
+         leftSpeed,leftAngle,leftPriority = self.getSteering(leftImage)
+         rightSpeed,rightAngle, rightPriority = self.getSteering(rightImage)
          finalSpeed = (leftSpeed+rightSpeed)/2
          finalAngle = (leftAngle+rightAngle)/2
+         priority = leftPriority if leftPriority > rightPriority else rightPriority
          if not (finalSpeed == 0 and finalAngle == 0):
-             self.pub.publish(str(finalSpeed)+","+str(finalAngle)+","+"1")
+             self.pub.publish(str(finalSpeed)+","+str(finalAngle)+","+priority)
 
     def getSteering(self,image):
         current=image[255:image.shape[0],0:image.shape[1]]
         future=image[134:255,0:image.shape[1]]
-        currentSpeed,currentAngle = self.processImage(current)
-        futureSpeed,futureAngle = self.processImage(future)
+        currentSpeed,currentAngle,currentPriority = self.processImage(current)
+        futureSpeed,futureAngle,futurePriority = self.processImage(future)
         totalSpeed = (futureSpeed * .8) + (currentSpeed * .2)
         totalAngel = (futureAngle * .8) + (currentAngle * .2)
-        return totalSpeed,totalAngel
+        return totalSpeed,totalAngel,futurePriority
 
     def processImage(self,image):
         hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
         mask = self.maskImage(hsv)
-        x,y = self.findCenter(mask)
+        x,y,area = self.findCenter(mask)
         if (x == 0 and y == 0):
-            return 0,0
+            return 0,0,0
         height, width, _ = image.shape
-        return self.steer(height,width,x,y)
+        return self.steer(height,width,x,y,area)
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
@@ -53,7 +54,7 @@ class LaneDriver:
             return 0,0
         cX = int(M["m10"] / M["m00"])
         cY = int(M["m01"] / M["m00"])
-        return cX,cY
+        return cX,cY,M["m00"]
 
     def maskImage(self,hsv):
         minBlue = np.array([56,0,87])
@@ -66,7 +67,11 @@ class LaneDriver:
         x = x - (width/2)
         angle = -.34 * math.atan2(x, y) *(2/math.pi)
         speed = ((y * 1.0)/ height) * 2
-        return speed,angle
+        if(area>SOMEMINNUMBER):
+            priority = "3"
+        else:
+            priority = "1"
+        return speed,angle,priority
 
 if __name__ == '__main__':
     try:
