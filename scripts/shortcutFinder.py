@@ -8,14 +8,16 @@ import os
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import LaserScan
-
-ORGANGE_MIN = np.array([0,100,100])
-ORANGE_MAX = np.array([10,255,255])
-BLUE_MIN = np.array([100,90,90])
-BLUE_MAX = np.array([120,255,255])
+from classes.LidarHelperClass import LidarHelper
 
 GREEN_MIN = np.array([25,29,0])
 GREEN_MAX = np.array([84,255,119])
+
+LOOK_FOR_SHORTCUT_LENGTH = 0.6
+HOLE_DEPTH = 1.5
+SEARCH_STEP = 2
+DIR_RIGHT = -SEARCH_STEP
+DIR_LEFT = SEARCH_STEP
 
 class shortcutFinder:
     def __init__(self):
@@ -52,12 +54,12 @@ class shortcutFinder:
         return cv2.inRange(hsv, colorMin, colorMax)
 
     def steerTowardSignOrIntoHole(self, height, width, x, y):
-        self.steer(height, width, x + 3, y)
+        self.steer(height, width, x, y)
 
     def steer(self,height,width,x,y):
         y = height - y
         x = x - int(width/2)
-        angle = -.34 * math.atan2(x + 1, y) *(2/math.pi)
+        angle = -.34 * math.atan2(x, y) *(2/math.pi)
         speed = y / (height/2)
         self.pub.publish(str(speed)+","+str(angle)+","+"5")
 
@@ -66,6 +68,36 @@ class shortcutFinder:
 
     def lidarCallback(self, data):
         self.lidar = data.ranges
+        lidar = self.lidar
+        minIndex, minDistance = LidarHelper.shortestDistInRange(lidar, -25, 25)
+        if minDistance < LOOK_FOR_SHORTCUT_LENGTH:
+            angleLeft = self.findHoleAngleLeft(lidar, minIndex)
+            angleRight = self.findHoleAngleRight(lidar, minIndex)
+            print('whole angle at %.2f, %.2f' % (angleLeft, angleRight))
+
+    def findHoleAngleRight(self, lidar, minIndex):
+        return self.findHoleAngle(lidar, minIndex, DIR_RIGHT)
+
+    def findHoleAngleLeft(self, lidar, minIndex):
+        return self.findHoleAngle(lidar, minIndex, DIR_LEFT)
+
+    def findHoleAngle(self, lidar, minIndex, dir):
+        index = minIndex
+        try:
+            #TODO restict ranges a bit more
+            while lidar[index] < HOLE_DEPTH:
+                index += dir
+            startHoleIndex = index
+            while lidar[index] >= HOLE_DEPTH:
+                index += dir
+            endHoleIndex = index
+            holeIndex = self.mid(startHoleIndex, endHoleIndex)
+            return LidarHelper.lidarIndexToAngle(holeIndex)
+        except IndexError:
+            return -1 # It's not on this side
+
+    def mid(self, a, b):
+        return (a + b) / 2
 
 if __name__ == '__main__':
     try:
