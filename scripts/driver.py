@@ -11,8 +11,9 @@ class steeringControl:
         self.timeOut=60
         self.priority=0
         self.subscribeToWallCenter()
-	self.subscribeToLaneCenter()
+        self.subscribeToLaneCenter()
         self.subscribeToEstop()
+        self.subscribeToShortcut()
         #self.subscribeToSerpentine()
         self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
         rp.spin()
@@ -29,6 +30,9 @@ class steeringControl:
     def subscribeToSerpentine(self):
         rp.Subscriber("serpentine",String,self.serpentineCallback)
 
+    def subscribeToShortcut(self):
+        rp.Subscriber('shortcutFinder', String, self.driveCallback)
+
     def wallCenterCallback(self, data):
         self.driveCallback(data)
 
@@ -39,6 +43,7 @@ class steeringControl:
         self.driveCallback(data)
 
     def driveCallback(self,data):
+        print('hihihihi')
         driveData=data.data.split(",")
         if(int(driveData[2])>self.priority):
             self.priority=int(driveData[2])

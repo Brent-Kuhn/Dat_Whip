@@ -26,7 +26,7 @@ class LaneDriver:
          finalAngle = (leftAngle+rightAngle)/2
          priority = leftPriority if leftPriority > rightPriority else rightPriority
          if not (finalSpeed == 0 or finalAngle == 0):
-             self.pub.publish(str(finalSpeed)+","+str(finalAngle)+","+str(priority))
+             self.pub.publish(str(1+finalSpeed)+","+str(finalAngle)+","+str(priority))
 
     def getSteering(self,image):
         current=image[255:image.shape[0],0:image.shape[1]]
@@ -58,8 +58,8 @@ class LaneDriver:
         return cX,cY,M["m00"]
 
     def maskImage(self,hsv):
-        minBlue = np.array([56,0,87])
-        maxBlue = np.array([120,155,255])
+        minBlue = np.array([50,0,87])
+        maxBlue = np.array([120,86,255])
         maskBlue = cv2.inRange(hsv,minBlue,maxBlue)
         return maskBlue
 
@@ -68,7 +68,7 @@ class LaneDriver:
         x = x - (width/2)
         angle = -.34 * math.atan2(x, y) *(2/math.pi)
         speed = ((y * 1.0)/ height) * 2
-        if(area>2210000.0):
+        if(area>10455730.0):
             priority = "3"
         else:
             priority = "1"

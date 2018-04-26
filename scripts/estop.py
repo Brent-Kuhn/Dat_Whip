@@ -28,10 +28,10 @@ class estop:
 
         if self.shouldStop(ranges):
             if self.stoppedTime > STOP_DURATION and self.backupTime > 0:
-                self.pub.publish("-1,0,5")
+                self.pub.publish("-1,0,100")
                 self.backupTime -= 1
             else:
-                self.pub.publish("0,0,5")
+                self.pub.publish("0,0,100")
                 self.stoppedTime += 1
         else:
             self.stoppedTime = 0
