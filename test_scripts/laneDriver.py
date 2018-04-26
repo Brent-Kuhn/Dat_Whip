@@ -26,7 +26,7 @@ class LaneDriver:
          finalAngle = (leftAngle+rightAngle)/2
          priority = leftPriority if leftPriority > rightPriority else rightPriority
          if not (finalSpeed == 0 and finalAngle == 0):
-             self.pub.publish(str(finalSpeed)+","+str(finalAngle)+","+priority)
+             self.pub.publish(str(finalSpeed)+","+str(finalAngle)+",1")#+priority)
 
     def getSteering(self,image):
         current=image[255:image.shape[0],0:image.shape[1]]
