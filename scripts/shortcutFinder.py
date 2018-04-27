@@ -46,7 +46,7 @@ class shortcutFinder:
             self.debugPub.publish(self.bridge.cv2_to_imgmsg(debugImage, encoding='bgr8'))
         if x != 0 and y != 0 and area > 1000:
             height, width, _ = leftImage.shape
-            print('and at last I see the sign %.2f, %.2f, %.2f' % (x, y, area))
+            # print('and at last I see the sign %.2f, %.2f, %.2f' % (x, y, area))
             self.steerTowardSignOrIntoHole(height, width, x, y)
 
     def findCenter(self,mask):
@@ -68,7 +68,7 @@ class shortcutFinder:
 
     def steer(self,height,width,x,y):
         y = height - y
-        x = x - int(width/4)
+        x = x - int(width/6)
         angle = -.34 * math.atan2(x, y) *(2/math.pi)
         speed = y / (height/2)
         self.pub.publish(str(speed)+","+str(angle)+","+"5")
@@ -83,7 +83,7 @@ class shortcutFinder:
         if minDistance < LOOK_FOR_SHORTCUT_LENGTH:
             angleLeft = self.findHoleAngleLeft(lidar, minIndex)
             angleRight = self.findHoleAngleRight(lidar, minIndex)
-            print('whole angle at %.2f, %.2f' % (angleLeft, angleRight))
+            # print('whole angle at %.2f, %.2f' % (angleLeft, angleRight))
 
     def findHoleAngleRight(self, lidar, minIndex):
         return self.findHoleAngle(lidar, minIndex, DIR_RIGHT)

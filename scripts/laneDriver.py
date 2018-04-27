@@ -61,7 +61,7 @@ class LaneDriver:
 
 	def processImage(self,image):
 		hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-		mask = self.maskImage(hsv)
+		mask = self.maskImage(image, hsv)
 		x,y,area = self.findCenter(mask)
 		if STREAM_IMAGE:
 			debugImage = cv2.bitwise_and(image, image, mask=mask)
@@ -81,7 +81,7 @@ class LaneDriver:
 
 	def findCenter(self,mask):
 		blur = cv2.GaussianBlur(mask,(5,5),0)
-		closed = cv2.morphologyEx(blur,cv2.MORPH_CLOSE,np.ones((27,27),np.uint8))
+		closed = cv2.morphologyEx(blur,cv2.MORPH_CLOSE,np.ones((7,7),np.uint8))
 		contours = cv2.findContours(closed,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 		M = cv2.moments(contours[0])
 		if(M["m00"]==0):
@@ -90,10 +90,10 @@ class LaneDriver:
 		cY = int(M["m01"] / M["m00"])
 		return cX,cY,M["m00"]
 
-	def maskImage(self,hsv):
+	def maskImage(self,image, hsv):
 		maskBlue = cv2.inRange(hsv, BLUE_MIN, BLUE_MAX)
-    		maskBright = cv2.inRange(img,BRIGHT_MIN,BRIGHT_MAX)
-    		cv2.bitwise_or(maskBright,maskBlue,maskBright)
+		maskBright = cv2.inRange(image,BRIGHT_MIN,BRIGHT_MAX)
+		cv2.bitwise_or(maskBright,maskBlue,maskBright)
 		return maskBright
 
 	def steer(self,height,width,x,y,area):

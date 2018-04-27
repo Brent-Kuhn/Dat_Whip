@@ -37,11 +37,12 @@ class stopSign:
         x, y, area = self.findCenter(RED_FINAL)
         # Remove coments for testing
         #print(area)
-        if x != 0 and y != 0 and area > 410353:
+        if x != 0 and y != 0 and area > (410353/2):
             height, width, _ = image.shape
             angle = 0
             speed = 0
-            self.pub.publish(str(speed)+","+str(angle)+","+"100")
+            while(True):
+                self.pub.publish(str(speed)+","+str(angle)+","+"100")
             print("stop", area)
 
     def findCenter(self,mask):
