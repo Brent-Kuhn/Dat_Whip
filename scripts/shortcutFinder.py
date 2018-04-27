@@ -47,7 +47,8 @@ class shortcutFinder:
         if x != 0 and y != 0 and area > 1000:
             height, width, _ = leftImage.shape
             # print('and at last I see the sign %.2f, %.2f, %.2f' % (x, y, area))
-            self.steerTowardSignOrIntoHole(height, width, x, y)
+            priority = 5
+            self.steerTowardSignOrIntoHole(height, width, x, y, priority)
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
@@ -63,15 +64,16 @@ class shortcutFinder:
     def colorFilter(self, hsv, colorMin, colorMax):
         return cv2.inRange(hsv, colorMin, colorMax)
 
-    def steerTowardSignOrIntoHole(self, height, width, x, y):
-        self.steer(height, width, x, y)
+    def steerTowardSignOrIntoHole(self, height, width, x, y, priority):
+        self.steer(height, width, x, y, priority)
 
-    def steer(self,height,width,x,y):
+    def steer(self,height,width,x,y, priority):
         y = height - y
-        x = x - int(width/6)
+        x = x - int(width/3.4)
         angle = -.34 * math.atan2(x, y) *(2/math.pi)
-        speed = y / (height/2)
-        self.pub.publish(str(speed)+","+str(angle)+","+"5")
+        # speed = y / (height/2)
+        speed = 1
+        self.pub.publish(str(speed)+","+str(angle)+","+str(priority))
 
     def subscribeToScan(self):
         rp.Subscriber("scan",LaserScan,self.lidarCallback)

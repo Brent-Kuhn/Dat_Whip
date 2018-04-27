@@ -8,13 +8,16 @@ import os
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import Joy
 from random import random
 
+STOP = False
+
 REDL_MIN = np.array([0,188,83])
-REDL_MAX = np.array([04,255,139])
+REDL_MAX = np.array([7,255,200])
 
 REDH_MIN = np.array([177,188,83])
-REDH_MAX = np.array([180,255,139])
+REDH_MAX = np.array([180,255,200])
 
 class stopSign:
     def __init__(self):
@@ -22,7 +25,11 @@ class stopSign:
         self.pub=rp.Publisher("eStop",String,queue_size=10)
         self.bridge = CvBridge()
         self.subscribeToImage()
+	self.subscribeToJoy()
         rp.spin()
+
+    def subscribeToJoy(self):
+	rp.Subscriber('/vesc/joy', Joy, self.joyCallback)
 
     def subscribeToImage(self):
         rp.Subscriber('zedImage', Image, self.zedCallback)
@@ -37,11 +44,12 @@ class stopSign:
         x, y, area = self.findCenter(RED_FINAL)
         # Remove coments for testing
         #print(area)
-        if x != 0 and y != 0 and area > (410353/2):
+        if x != 0 and y != 0 and area > (410353/10):
             height, width, _ = image.shape
             angle = 0
             speed = 0
-            while(True):
+	    STOP = True
+            while(STOP):
                 self.pub.publish(str(speed)+","+str(angle)+","+"100")
             print("stop", area)
 
@@ -58,6 +66,11 @@ class stopSign:
 
     def colorFilter(self, hsv, colorMin, colorMax):
         return cv2.inRange(hsv, colorMin, colorMax)
+
+    def joyCallback(self,data):
+        buttons = data.buttons
+        if buttons[0] == 1:
+	    STOP = False
 
 if __name__ == '__main__':
     try:
