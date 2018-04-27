@@ -9,8 +9,10 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from constants import STREAM_IMAGE
 
-BLUE_MIN = np.array([91,50,80])
+BLUE_MIN = np.array([90,100,80])
 BLUE_MAX = np.array([108,248,255])
+BRIGHT_MIN = np.array([245,245,245])
+BRIGHT_MAX = np.array([255,255,255])
 
 class LaneDriver:
 	def __init__(self):
@@ -79,7 +81,7 @@ class LaneDriver:
 
 	def findCenter(self,mask):
 		blur = cv2.GaussianBlur(mask,(5,5),0)
-		closed = cv2.morphologyEx(blur,cv2.MORPH_CLOSE,np.ones((5,5),np.uint8))
+		closed = cv2.morphologyEx(blur,cv2.MORPH_CLOSE,np.ones((27,27),np.uint8))
 		contours = cv2.findContours(closed,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 		M = cv2.moments(contours[0])
 		if(M["m00"]==0):
@@ -90,7 +92,9 @@ class LaneDriver:
 
 	def maskImage(self,hsv):
 		maskBlue = cv2.inRange(hsv, BLUE_MIN, BLUE_MAX)
-		return maskBlue
+    		maskBright = cv2.inRange(img,BRIGHT_MIN,BRIGHT_MAX)
+    		cv2.bitwise_or(maskBright,maskBlue,maskBright)
+		return maskBright
 
 	def steer(self,height,width,x,y,area):
 		y = height - y
