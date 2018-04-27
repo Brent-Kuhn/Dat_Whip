@@ -42,10 +42,10 @@ class LaneDriver:
 		future=image[134:255,0:image.shape[1]]
 		currentSpeed,currentAngle,currentArea = self.processImage(current)
 		futureSpeed,futureAngle,futureArea = self.processImage(future)
-		FUTURE_WEIGHT = .9
-		CURRENT_WEIGHT = 1 - FUTURE_WEIGHT
+		FUTURE_WEIGHT = 1.5
+		CURRENT_WEIGHT = 1#1 - FUTURE_WEIGHT
 		totalSpeed = (futureSpeed * FUTURE_WEIGHT) + (currentSpeed * CURRENT_WEIGHT)
-		totalAngle = (2 * futureAngle * FUTURE_WEIGHT) + (currentAngle * CURRENT_WEIGHT)
+		totalAngle = (futureAngle * FUTURE_WEIGHT) + (currentAngle * CURRENT_WEIGHT)
 		priority = self.calcPriorityFromAreas(currentArea, futureArea)
 		return totalSpeed,totalAngle,priority
 
@@ -96,7 +96,7 @@ class LaneDriver:
 		y = height - y
 		x = x - (width/2)
 		angle = -.34 * math.atan2(x, y) *(2/math.pi)
-		speed = ((y * 1.0)/ height) * 2
+		speed = area / 100000000 * 4#((y * 1.0)/ height) * 2
 		return speed,angle,area
 
 if __name__ == '__main__':
