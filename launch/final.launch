@@ -1,0 +1,26 @@
+<!-- -*- mode: XML -*- -->
+<launch>
+  <arg name="racecar_version" default="racecar-v2" />
+  <arg name="run_camera" default="false"/>
+  <arg name="debug" default="false" />
+
+  <group if="$(arg debug)">
+    <node pkg="web_video_server" name="web_video_server" type="web_video_server" />
+    <node pkg="racecar" name="server" type="server.py" />
+    <env name="DEBUG" value="true" />
+  </group>
+
+  <!-- <node pkg="racecar" name="zed" type="zedPublish.py" /> -->
+  <node pkg="racecar" name="driver4" type="driver.py" />
+  <node pkg="racecar" name="estop4" type="estop.py" />
+  <node pkg="racecar" name="laneDriver4" type="laneDriver.py" />
+  <node pkg="racecar" name="wallCentering4" type="wallCentering.py" />
+  <node pkg="racecar" name="stopSign4" type="stopSign.py" />
+  <node pkg="racecar" name="shortcutFinder4" type="shortcutFinder.py" />
+
+  <include file="$(find racecar)/launch/includes/$(arg racecar_version)-teleop.launch.xml">
+    <arg name="racecar_version" value="$(arg racecar_version)" />
+    <arg name="run_camera" value="$(arg run_camera)" />
+  </include>
+
+</launch>
