@@ -42,7 +42,8 @@ class shortcutFinder:
 
     def findCenter(self,mask):
         blur = cv2.GaussianBlur(mask,(5,5),0)
-        contours = cv2.findContours(blur,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        closed = cv2.morphologyEx(blur,cv2.MORPH_CLOSE,np.ones((5,5),np.uint8))
+        contours = cv2.findContours(closed,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
         M = cv2.moments(contours[0])
         if(M["m00"]==0):
             return 0,0

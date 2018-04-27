@@ -19,7 +19,7 @@ class steeringControl:
         rp.spin()
 
     def subscribeToLaneCenter(self):
-        rp.Subscriber("laneCenter",String,self.driveCallback)
+        rp.Subscriber("laneCenter",String,self.laneCenterCallback)
 
     def subscribeToWallCenter(self):
         rp.Subscriber("wallCenter",String,self.wallCenterCallback)
@@ -33,23 +33,27 @@ class steeringControl:
     def subscribeToShortcut(self):
         rp.Subscriber('shortcutFinder', String, self.driveCallback)
 
+    def laneCenterCallback(self, data):
+        self.driveCallback(data, 'laneCenter')
+
     def wallCenterCallback(self, data):
-        self.driveCallback(data)
+        self.driveCallback(data, 'wallCenter')
 
     def estopCallback(self, data):
-        self.driveCallback(data)
+        self.driveCallback(data, 'estop')
 
     def serpentineCallback(self, data):
-        self.driveCallback(data)
+        self.driveCallback(data, 'serpentine')
 
-    def driveCallback(self,data):
-        print('hihihihi')
+    def driveCallback(self, data, name):
         driveData=data.data.split(",")
         if(int(driveData[2])>self.priority):
             self.priority=int(driveData[2])
+            print(name)
             self.drive(float(driveData[0]),float(driveData[1]))
     	elif(int(driveData[2])==self.priority and self.time<self.timeOut):
     	    self.time+=1
+            print(name)
     	    self.drive(float(driveData[0]),float(driveData[1]))
     	else:
             self.priority-=1
