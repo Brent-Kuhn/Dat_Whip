@@ -55,7 +55,7 @@ class steeringControl:
 			self.priority = newPriority
 		if newPriority == self.priority:
 			self.time = 0
-			print(name + ' with a priority of ' + str(self.priority))
+			# print(name + ' with a priority of ' + str(self.priority))
 			self.drive(float(driveData[0]),float(driveData[1]))
 		if newPriority < self.priority:
 			self.time += 1
