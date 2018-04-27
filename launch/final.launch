@@ -16,7 +16,7 @@
   <node pkg="racecar" name="laneDriver4" type="laneDriver.py" output="screen" />
   <node pkg="racecar" name="wallCentering4" type="wallCentering.py" />
   <!-- <node pkg="racecar" name="stopSign4" type="stopSign.py" /> -->
-  <!-- <node pkg="racecar" name="shortcutFinder4" type="shortcutFinder.py" /> -->
+  <!-- <node pkg="racecar" name="shortcutFinder4" type="shortcutFinder.py" output="screen" /> -->
 
   <include file="$(find racecar)/launch/includes/$(arg racecar_version)-teleop.launch.xml">
     <arg name="racecar_version" value="$(arg racecar_version)" />

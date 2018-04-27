@@ -9,7 +9,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from constants import STREAM_IMAGE
 
-BLUE_MIN = np.array([91,93,80])
+BLUE_MIN = np.array([91,50,80])
 BLUE_MAX = np.array([108,248,255])
 
 class LaneDriver:
