@@ -5,73 +5,74 @@ from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 from classes.estopClass import estop
 
 class steeringControl:
-    def __init__(self):
-        rp.init_node("driver",anonymous=False)
-        self.time=0
-        self.timeOut=60
-        self.priority=0
-        self.subscribeToWallCenter()
-        self.subscribeToLaneCenter()
-        self.subscribeToEstop()
-        self.subscribeToShortcut()
-        #self.subscribeToSerpentine()
-        self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
-        rp.spin()
+	def __init__(self):
+		rp.init_node("driver",anonymous=False)
+		self.time=0
+		self.timeOut=10
+		self.priority=0
+		self.subscribeToWallCenter()
+		self.subscribeToLaneCenter()
+		self.subscribeToEstop()
+		self.subscribeToShortcut()
+		#self.subscribeToSerpentine()
+		self.pub=rp.Publisher("/vesc/ackermann_cmd_mux/input/navigation",AckermannDriveStamped,queue_size=10)
+		rp.spin()
 
-    def subscribeToLaneCenter(self):
-        rp.Subscriber("laneCenter",String,self.laneCenterCallback)
+	def subscribeToLaneCenter(self):
+		rp.Subscriber("laneCenter",String,self.laneCenterCallback)
 
-    def subscribeToWallCenter(self):
-        rp.Subscriber("wallCenter",String,self.wallCenterCallback)
+	def subscribeToWallCenter(self):
+		rp.Subscriber("wallCenter",String,self.wallCenterCallback)
 
-    def subscribeToEstop(self):
-        rp.Subscriber("eStop",String,self.estopCallback)
+	def subscribeToEstop(self):
+		rp.Subscriber("eStop",String,self.estopCallback)
 
-    def subscribeToSerpentine(self):
-        rp.Subscriber("serpentine",String,self.serpentineCallback)
+	def subscribeToSerpentine(self):
+		rp.Subscriber("serpentine",String,self.serpentineCallback)
 
-    def subscribeToShortcut(self):
-        rp.Subscriber('shortcutFinder', String, self.driveCallback)
+	def subscribeToShortcut(self):
+		rp.Subscriber('shortcutFinder', String, self.driveCallback)
 
-    def laneCenterCallback(self, data):
-        self.driveCallback(data, 'laneCenter')
+	def laneCenterCallback(self, data):
+		self.driveCallback(data, 'laneCenter')
 
-    def wallCenterCallback(self, data):
-        self.driveCallback(data, 'wallCenter')
+	def wallCenterCallback(self, data):
+		self.driveCallback(data, 'wallCenter')
 
-    def estopCallback(self, data):
-        self.driveCallback(data, 'estop')
+	def estopCallback(self, data):
+		self.driveCallback(data, 'estop')
 
-    def serpentineCallback(self, data):
-        self.driveCallback(data, 'serpentine')
+	def serpentineCallback(self, data):
+		self.driveCallback(data, 'serpentine')
 
-    def driveCallback(self, data, name):
-        driveData=data.data.split(",")
-        if(int(driveData[2])>self.priority):
-            self.priority=int(driveData[2])
-            print(name)
-            self.drive(float(driveData[0]),float(driveData[1]))
-    	elif(int(driveData[2])==self.priority and self.time<self.timeOut):
-    	    self.time+=1
-            print(name)
-    	    self.drive(float(driveData[0]),float(driveData[1]))
-    	else:
-            self.priority-=1
-            self.time=0
+	def driveCallback(self, data, name):
+		driveData=data.data.split(",")
+		newPriority = int(driveData[2])
+		if newPriority > self.priority:
+			self.priority = newPriority
+		if newPriority == self.priority:
+			self.time = 0
+			print(name + ' with a priority of ' + str(self.priority))
+			self.drive(float(driveData[0]),float(driveData[1]))
+		if newPriority < self.priority:
+			self.time += 1
+			if self.time > self.timeOut:
+				self.time = 0
+				self.priority = 0
 
-    def drive(self,speed,angle):
-        drive_msg_stamped = AckermannDriveStamped()
-        drive_msg = AckermannDrive()
-        drive_msg.speed = speed
-        drive_msg.steering_angle = angle
-        drive_msg.acceleration = 0
-        drive_msg.jerk = 0
-        drive_msg.steering_angle_velocity = 0
-        drive_msg_stamped.drive = drive_msg
-        self.pub.publish(drive_msg_stamped)
+	def drive(self,speed,angle):
+		drive_msg_stamped = AckermannDriveStamped()
+		drive_msg = AckermannDrive()
+		drive_msg.speed = speed
+		drive_msg.steering_angle = angle
+		drive_msg.acceleration = 0
+		drive_msg.jerk = 0
+		drive_msg.steering_angle_velocity = 0
+		drive_msg_stamped.drive = drive_msg
+		self.pub.publish(drive_msg_stamped)
 
 if __name__ == '__main__':
-    try:
-        steeringControl()
-    except rp.ROSInterruptException:
-        pass
+	try:
+		steeringControl()
+	except rp.ROSInterruptException:
+		pass

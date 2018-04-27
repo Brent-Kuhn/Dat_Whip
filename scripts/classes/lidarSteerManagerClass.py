@@ -35,9 +35,9 @@ class LidarSteerManager:
         left, right = LidarSteerManager.normalize(left, right)
         # In case of emergency drop right....
         if(left < .75 or right < .75):
-            self.priority = "2"
+            self.priority = "3"
         else:
-            self.priority = "0"
+            self.priority = "1"
         sub_error = right - left
         return sub_error
 
