@@ -31,7 +31,7 @@ class steeringControl:
 		rp.Subscriber("serpentine",String,self.serpentineCallback)
 
 	def subscribeToShortcut(self):
-		rp.Subscriber('shortcutFinder', String, self.driveCallback)
+		rp.Subscriber('shortcutFinder', String, self.shortcutCallback)
 
 	def laneCenterCallback(self, data):
 		self.driveCallback(data, 'laneCenter')
@@ -44,6 +44,9 @@ class steeringControl:
 
 	def serpentineCallback(self, data):
 		self.driveCallback(data, 'serpentine')
+
+	def shortcutCallback(self, data):
+		self.driveCallback(data, 'shortcut')
 
 	def driveCallback(self, data, name):
 		driveData=data.data.split(",")

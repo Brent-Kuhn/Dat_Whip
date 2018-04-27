@@ -10,8 +10,8 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import LaserScan
 from classes.LidarHelperClass import LidarHelper
 
-GREEN_MIN = np.array([25,29,0])
-GREEN_MAX = np.array([84,255,119])
+GREEN_MIN = np.array([50,60,60])
+GREEN_MAX = np.array([60,100,100])
 
 LOOK_FOR_SHORTCUT_LENGTH = 0.6
 HOLE_DEPTH = 1.5
@@ -38,6 +38,7 @@ class shortcutFinder:
         x, y = self.findCenter(mask)
         if x != 0 and y != 0:
             height, width, _ = image.shape
+            print(x, y)
             self.steerTowardSignOrIntoHole(height, width, x, y)
 
     def findCenter(self,mask):
