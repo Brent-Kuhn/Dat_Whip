@@ -11,6 +11,6 @@
 
   <node pkg="racecar" name="driver_node" type="driver.py" />
   <node pkg="racecar" name="estop_node" type="estop.py" output="screen" />
-  <node pkg="racecar" name="zed_node" type="zedPublish.py" />
+  <!--<node pkg="racecar" name="zed_node" type="zedPublish.py" /> -->
 
 </launch>
